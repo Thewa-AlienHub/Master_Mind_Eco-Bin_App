@@ -1,5 +1,8 @@
 import React from 'react';
-import { Text, View, Button, StyleSheet, StatusBar, Platform,useWindowDimensions, TextInput, ScrollView,ActivityIndicator } from 'react-native';
+import { Text, View, Button, StyleSheet, 
+    StatusBar, Platform,useWindowDimensions, 
+    TextInput, ScrollView,ActivityIndicator,
+Animated,TouchableOpacity,opacityAnim } from 'react-native';
 import colors from '../config/colors';
 import { useState } from 'react';
 import { doc,setDoc } from 'firebase/firestore';
@@ -16,7 +19,7 @@ function AddHome({navigation}) {
     const [zipCode,setZipCode] = useState(null);
 
     const [loading,setLoading] = useState(false);
-
+    const [error, setError] = useState({});
     const{width} = useWindowDimensions();
     const isMobile = width <600;
 
@@ -25,12 +28,12 @@ function AddHome({navigation}) {
         setLoading(true);
         // Unique document reference for each house
         setDoc(doc(DB, "tenants", "house_" + nickName), {
-            AD_Line1: Ad_Line1,
-            AD_Line2: Ad_Line2,
-            AD_Line3: Ad_Line3,
-            City: city,
-            NickName: nickName,
-            ZipCode: zipCode,
+            Ad_Line1: Ad_Line1,
+            Ad_Line2: Ad_Line2,
+            Ad_Line3: Ad_Line3,
+            city: city,
+            nickName: nickName,
+            zipCode: zipCode,
         }).then(() => {
             setLoading(false);
             console.log('Document successfully written!');
@@ -45,92 +48,105 @@ function AddHome({navigation}) {
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             <View style={styles.container}>
-            {loading ? (  // Show the loading indicator if loading is true
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color={colors.primary} />
-                        <Text>Loading...</Text>
+            {loading ? (
+        // Show loading spinner
+        <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Please wait, submitting your data...</Text>
+        </View>
+      ) : (
+        <>
+            <View style={styles.TopBarContainer}>
+                    <View style={styles.backButton}>
+                        <Button title='back' onPress={()=>navigation.navigate('addTenant')}/>
                     </View>
-                ) : (
-                    <>
-                    <View style={styles.TopBarContainer}>
-                        <View style={styles.backButton}>
-                            <Button title='back' onPress={()=>navigation.navigate('addTenant')}/>
-                        </View>
-                        <Text style={styles.TopBar}>
-                            Add Home
-                        </Text>
-                    </View>
-                    <View style={isMobile? null:styles_web.formContainer}>
-                <View style={isMobile? null:styles_web.form}> 
-                    <View style={styles.LableContainer}>
-                        <Text style={styles.label}>Nick Name :</Text>
-                    </View>
-                    <TextInput
-                        value={nickName}
-                        onChangeText={(text)=>{setNickName(text)}}
-                        style={styles.inputBox}
-                        placeholder="useless placeholder"
-                    />
-                    <View style={styles.addressLabelContainer}>
-                        <Text style={{ fontSize: 30 }}>Address</Text>
-                        <View style={styles.LableContainer}>
-                            <Text style={styles.label}>Address Line 1 :</Text>
-                        </View>
-                        <TextInput
-                            value={Ad_Line1}
-                            onChangeText={(text) => setAd_Line1(text)}
-                            style={styles.inputBox}
-                            placeholder="Address Line 1"
-                        />
-                        <View style={styles.LableContainer}>
-                            <Text style={styles.label}>Address Line 2 :</Text>
-                        </View>
-                        <TextInput
-                            value={Ad_Line2}
-                            onChangeText={(text) => setAd_Line2(text)}
-                            style={styles.inputBox}
-                            placeholder="Address Line 2"
-                        />
-                        <View style={styles.LableContainer}>
-                            <Text style={styles.label}>Address Line 3 :</Text>
-                        </View>
-                        <TextInput
-                            value={Ad_Line3}
-                            onChangeText={(text) => setAd_Line3(text)}
-                            style={styles.inputBox}
-                            placeholder="Address Line 3"
-                        />
-
-
-                        <View style={styles.LableContainer}>
-                            <Text style={styles.label}>City :</Text>
-                        </View>
-                        <TextInput
-                            value={city}
-                            onChangeText={(text) => setCity(text)}
-                            style={styles.inputBox}
-                            placeholder="City"
-                        />
-
-
-                        <View style={styles.LableContainer}>
-                            <Text style={styles.label}>Zip Code :</Text>
-                        </View>
-                        <TextInput
-                            value={zipCode}
-                            onChangeText={(text) => setZipCode(text)}
-                            style={styles.inputBox}
-                            placeholder="Zip Code"
-                        />
-                    </View>
-                    <View style={styles.QrCodeButtonContainer}>
-                        <Button onPress={addData} title='Generate QR Code'></Button>
-                    </View>
+                    <Text style={styles.TopBar}>
+                        Add Event
+                    </Text>
                 </View>
-                </View>
-                </>
-                )}
-            </View>
+
+      <View style={styles.formContainer}>
+        <Text style={styles.formTitle}>Enter Details</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="House Nick Name"
+          value={nickName}
+          onChangeText={(text)=>setNickName(text)}
+        />
+        {/* Animated Error for House Address */}
+        {error.nickName && (
+          <Animated.View style={{ opacity: opacityAnim }}>
+            <Text style={styles.errorText}>{error.nickName}</Text>
+          </Animated.View>
+        )}
+        <TextInput
+          style={styles.input}
+          placeholder="Addrress line 1"
+          value={Ad_Line1}
+          onChangeText={setAd_Line1}
+        />
+        {/* Animated Error for Owner Name */}
+        {error.Ad_Line1 && (
+          <Animated.View style={{ opacity: opacityAnim }}>
+            <Text style={styles.errorText}>{error.Ad_Line1}</Text>
+          </Animated.View>
+        )}
+        <TextInput
+          style={styles.input}
+          placeholder="Address line 2"
+          value={Ad_Line2}
+          onChangeText={setAd_Line2}
+        />
+        {/* Animated Error for Truck ID */}
+        {error.Ad_Line2 && (
+          <Animated.View style={{ opacity: opacityAnim }}>
+            <Text style={styles.errorText}>{error.Ad_Line2}</Text>
+          </Animated.View>
+        )}
+        <TextInput
+          style={styles.input}
+          placeholder="Address line 3"
+          value={Ad_Line3}
+          onChangeText={setAd_Line3}
+        />
+        {/* Animated Error for Collector Name */}
+        {error.Ad_Line3 && (
+          <Animated.View style={{ opacity: opacityAnim }}>
+            <Text style={styles.errorText}>{error.Ad_Line3}</Text>
+          </Animated.View>
+        )}
+        <TextInput
+          style={styles.input}
+          placeholder="City"
+          value={city}
+          onChangeText={setCity}
+        />
+        {/* Animated Error for Collector Name */}
+        {error.city && (
+          <Animated.View style={{ opacity: opacityAnim }}>
+            <Text style={styles.errorText}>{error.city}</Text>
+          </Animated.View>
+        )}
+        <TextInput
+          style={styles.input}
+          placeholder="Zip Code"
+          value={zipCode}
+          onChangeText={setZipCode}
+        />
+        {/* Animated Error for Collector Name */}
+        {error.zipCode && (
+          <Animated.View style={{ opacity: opacityAnim }}>
+            <Text style={styles.errorText}>{error.zipCode}</Text>
+          </Animated.View>
+        )}
+
+        <TouchableOpacity style={styles.submitButton} onPress={addData}>
+          <Text style={styles.submitButtonText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+      </>
+    )}
+    </View>
         </ScrollView>
     );
 }
@@ -138,21 +154,68 @@ function AddHome({navigation}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        width: '100%',
-        overflow: 'auto',
+        justifyContent: "center",
+        alignItems: "center",
 
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    scrollViewContainer: {
+      },
+      scrollViewContainer: {
         flexGrow: 1,
         paddingBottom: 50,
         maxHeight: '105vh',
     },
-    TopBarContainer: {
+      formContainer: {
+        width: "80%",
+        paddingTop:50,
+      },
+      formTitle: {
+        fontSize: 24,
+        marginBottom: 30,
+        color: "#4C6A92",
+      },
+      input: {
+        height: 40,
+        fontSize: 16,
+        borderColor: "#6EC6B2",
+        borderWidth: 1,
+        marginBottom: 30,
+        paddingHorizontal: 15,
+        borderRadius: 5,
+      },
+      submitButton: {
+        backgroundColor: "#6EC6B2",
+        padding: 10,
+        borderRadius: 20,
+      },
+      submitButtonText: {
+        color: "#4C6A92",
+        textAlign: "center",
+        fontWeight: "bold",
+        fontSize: 20,
+      },
+      errorText: {
+        color: "red",
+        marginBottom: 10,
+      },
+      loaderContainer: {
+        flex:1,
+        padding: 20,
+        backgroundColor: '#fff', // White background for the loader
+        borderRadius: 10,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5, // Box shadow for Android
+      },
+      loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#333',
+        fontWeight: '500',
+        textAlign: 'center',
+      },
+      TopBarContainer: {
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'center',
@@ -161,74 +224,16 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     TopBar: {
-        fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 30 : 40,
+        fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 36 : 56,
         textAlign: 'center',
-        color: colors.black,
+        fontWeight: "bold",
+        color: "#4C6A92",
     },
     backButton: {
         position: 'absolute',
         left: 10,
         top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
-    LableContainer: {
-        paddingTop: 10,
-    },
-    label: {
-        paddingLeft: 20,
-        fontSize: 24,
-    },
-    addressLabelContainer: {
-        paddingTop: 10,
-        margin: 15,
-        borderWidth: 2,
-        borderColor: 'red',
-    },
-    QrCodeButtonContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingBottom: 50,
-    },
-    inputBox: {
-        height: 50,
-        margin: 12,
-        borderWidth: 2,
-        padding: 10,
-        backgroundColor: colors.light,
-        borderColor: colors.dark,
-        borderRadius: 10,
-        ...Platform.select({
-            ios: {
-                shadowColor: 'black',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 6,
-            },
-            android: {
-                elevation: 25,
-                shadowColor: 'black',
-                shadowOffset: { width: 0, height: 100 },
-                shadowOpacity: 1,
-                shadowRadius: 2,
-            },
-            web: {
-                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)',
-
-            },
-        }),
-        zIndex: 10,
-    },
-});
-
-const styles_web = StyleSheet.create({
-    formContainer:{
-        justifyContent:'center',
-        alignItems:'center'
-    },
-  form:{
-    alignContent:'center',
-    width: "70%",
-  }
-})
+    });
 
 export default AddHome;

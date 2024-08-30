@@ -6,6 +6,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AddResident from './app/screens/AddResident';
 import AddEvent from './app/screens/AddEvent';
 import HomeProfile from './app/screens/HomeProfile';
+import Navi from './app/screens/Navi';
+import EditHomeProfile from './app/screens/EditHomeProfile';
+
 
 
 const Stack = createStackNavigator();
@@ -13,11 +16,17 @@ const Stack = createStackNavigator();
 export default function App() {
 
   return (
+
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='addTenant'>
+      <Stack.Navigator initialRouteName='navi'>
         <Stack.Screen
           name='addTenant'
           component={AddTenant}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='navi'
+          component={Navi}
           options={{headerShown : false}}
         />
 
@@ -25,6 +34,11 @@ export default function App() {
         <Stack.Screen
           name='addHome'
           component={AddHome}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='editHomeProfile'
+          component={EditHomeProfile}
           options={{headerShown : false}}
         />
         <Stack.Screen
@@ -42,9 +56,12 @@ export default function App() {
           component={HomeProfile}
           options={{headerShown : false}}
         />
+        
       </Stack.Navigator>
     </NavigationContainer>
+
   );
 }
+
 
 

@@ -122,7 +122,7 @@ function AddTenant({navigation}) {
         <View style={styles.container}>
             <View style={styles.TopBarContainer}>
                 <View style = {styles.backButton}>
-                    <Button title='back'/>
+                    <Button title='back' onPress={()=>navigation.navigate('navi')}/>
                 </View>
                 <Text style={styles.TopBar}>
                     Add Tenants
