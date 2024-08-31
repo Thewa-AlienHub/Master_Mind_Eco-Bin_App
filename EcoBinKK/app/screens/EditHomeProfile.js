@@ -6,11 +6,12 @@ import { doc, getDoc,updateDoc } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
 
 function EditHomeProfile({route,navigation}) {
-    const {nickName} = route.params;
+    const {email} = route.params;
     const{width,height} = useWindowDimensions();
     const isMobile = width <600;
 
     const [homeData, setHomeData] = useState({
+        NickName:'',
         AD_Line1:'',
         AD_Line2:'',
         AD_Line3:'',
@@ -23,7 +24,7 @@ function EditHomeProfile({route,navigation}) {
     useEffect(()=>{
         const fetchHomeData = async () => {
             try {
-                const docRef = doc(DB,"tenants","house_"+nickName);
+                const docRef = doc(DB,"tenants",email);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -38,7 +39,7 @@ function EditHomeProfile({route,navigation}) {
             }
         };
         fetchHomeData();
-    },[nickName]);
+    },[email]);
 
     const handleInputChange = (field, value) => {
         setHomeData(prevState => ({
@@ -48,10 +49,10 @@ function EditHomeProfile({route,navigation}) {
     };
     const handleUpdate = async () => {
         try {
-            const docRef = doc(DB, "tenants", "house_" + nickName);
+            const docRef = doc(DB, "tenants", email);
             await updateDoc(docRef, homeData);
             alert('Data updated successfully!');
-            navigation.navigate('homeProfile',{nickName:nickName});
+            navigation.goBack();
         } catch (error) {
             console.log('Error updating document', error);
             alert('Failed to update data');
@@ -82,7 +83,7 @@ function EditHomeProfile({route,navigation}) {
     <TextInput
       style={styles.input}
       placeholder="House Nick Name"
-      value={nickName}
+      value={homeData.NickName}
       editable={false}
     />
     

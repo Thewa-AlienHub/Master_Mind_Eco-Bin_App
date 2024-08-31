@@ -5,11 +5,12 @@ import { doc, getDoc } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
 
 function HomeProfile({ route, navigation }) {
-    const { nickName } = route.params;
+    const { email } = route.params;
     const { width, height } = useWindowDimensions();
     const isMobile = width < 600;
 
     const [homeData, setHomeData] = useState({
+        NickName:'',
         AD_Line1: '',
         AD_Line2: '',
         AD_Line3: '',
@@ -23,7 +24,7 @@ function HomeProfile({ route, navigation }) {
     useEffect(() => {
         const fetchHomeData = async () => {
             try {
-                const docRef = doc(DB, "tenants", "house_" + nickName);
+                const docRef = doc(DB, "tenants", email);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -41,7 +42,7 @@ function HomeProfile({ route, navigation }) {
             }
         };
         fetchHomeData();
-    }, [nickName]);
+    }, [email]);
 
     const handleCombinedAddressChange = (text) => {
         // Split the combined text back into individual address lines and city
@@ -80,8 +81,8 @@ function HomeProfile({ route, navigation }) {
                             <TextInput
                                 style={styles.input}
                                 placeholder="House Nickname"
-                                value={nickName}
                                 editable={false}
+                                value={homeData.NickName}
                             />
                             {/* Combined address TextInput */}
                             <Text>Address</Text>
@@ -103,7 +104,7 @@ function HomeProfile({ route, navigation }) {
 
                             <Button
                             title='edit'
-                            onPress={()=>(navigation.navigate('editHomeProfile',{nickName:nickName}))}
+                            onPress={()=>(navigation.navigate('editHomeProfile', { email: email }))}
                             />
                         </View>
                     </>

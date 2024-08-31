@@ -9,6 +9,8 @@ import HomeProfile from './app/screens/HomeProfile';
 import Navi from './app/screens/Navi';
 import EditHomeProfile from './app/screens/EditHomeProfile';
 import UserProfile from './app/screens/UserProfile';
+import Login from './app/screens/Login';
+import SignUp from './app/screens/SignUp';
 
 
 
@@ -19,7 +21,7 @@ export default function App() {
   return (
 
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='userProfile'>
+      <Stack.Navigator initialRouteName='Login'>
         <Stack.Screen
           name='addTenant'
           component={AddTenant}
@@ -31,11 +33,20 @@ export default function App() {
           options={{headerShown : false}}
         />
         <Stack.Screen
+          name='Signup'
+          component={SignUp}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
           name='userProfile'
           component={UserProfile}
           options={{headerShown : false}}
         />
-
+        <Stack.Screen
+          name='Login'
+          component={Login}
+          options={{headerShown : false}}
+        />
 
         <Stack.Screen
           name='addHome'

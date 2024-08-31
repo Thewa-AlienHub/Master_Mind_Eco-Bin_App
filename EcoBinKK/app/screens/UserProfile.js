@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState,useEffect} from 'react';
 import {
   Button,
   DrawerLayoutAndroid,
@@ -8,14 +8,70 @@ import {
   ScrollView
 } from 'react-native';
 import colors from '../config/colors';
-import  Icon  from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { doc, getDoc } from 'firebase/firestore';
+import { DB } from '../config/DB_config';
 
-const UserProfile = ({navigation}) => {
+const UserProfile = ({route,navigation}) => {
+  const { email } = route.params;
   const drawer = useRef(null);
   const [drawerPosition, setDrawerPosition] = useState('left');
-  
+  const [loading,setLoading] = useState(false)
+  const [hasData, setHasData] = useState(false); 
 
-  const navigationView = () => (
+  const [userData, setUserData] = useState({
+    FirstName: '',
+    LastName: '',
+    ContactNum: '',
+    email: '',
+    password: '',
+    role: '',
+  });
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+        try {
+            const docRef = doc(DB, "users", email);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setUserData(data);
+                // Create the combined address string
+            } else {
+                console.log('No file found');
+            }
+        } catch (error) {
+            console.log('Error fetching', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchUserData();
+}, [email]);
+
+useEffect(() => {
+  const checkData = async () => {
+    try {
+      const docRef = doc(DB, "tenants", email); // Reference to the document
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setHasData(true);
+      } else {
+        setHasData(false);
+      }
+      console.log('Has data:', hasData); // Log hasData for debugging
+    } catch (error) {
+      console.log('Error fetching document:', error);
+      setHasData(false);
+    }
+  };
+
+  checkData(); // Call the function on component mount or when `email` changes
+}, [email]);
+
+const navigationView = () => (
     <View style={[styles.container, styles.navigationContainer]}>
       <View style={styles.drawerTop}>
         {/*this part is the green part on drawer navigation */}
@@ -23,9 +79,21 @@ const UserProfile = ({navigation}) => {
       <View>
       <TouchableOpacity onPress={() => drawer.current.openDrawer()} style={styles.menuButtonContainer}>
           
+          <TouchableOpacity onPress={() => {
+            if (hasData) {
+              navigation.navigate('homeProfile', { email: email }); // Navigate to ScreenA if condition is true
+            } else {
+                navigation.navigate('addTenant'); // Navigate to ScreenB if condition is false
+            }
+        }}>
+            <View style={styles.iconTextRow}>
+              <Icon name="arrow-back" size={34} color="black" />
+              <Text style={styles.iconText}>Tenants</Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('addTenant')}>
             <View style={styles.iconTextRow}>
-              <Icon name="menu" size={34} color="black" />
+              <Icon name="arrow-back" size={34} color="black" />
               <Text style={styles.iconText}>Test</Text>
             </View>
           </TouchableOpacity>
@@ -35,70 +103,72 @@ const UserProfile = ({navigation}) => {
     </View>
   );
 
-  return (
-    <DrawerLayoutAndroid
-      ref={drawer}
-      drawerWidth={300}
-      drawerPosition={drawerPosition}
-      renderNavigationView={navigationView}>
+
+    return (
+      <DrawerLayoutAndroid
+        ref={drawer}
+        drawerWidth={300}
+        drawerPosition={drawerPosition}
+        renderNavigationView={navigationView}>
         <ScrollView>
-      <View style={styles.containerDown}>
-        
-        <View style={styles.TopBarContainer}>
+          <View style={styles.containerDown}>
+          <View style={styles.TopBarContainer}>
             <View style={styles.backButton}>
-              <TouchableOpacity onPress={()=>drawer.current.openDrawer()} style={styles.backButtonContainer}>
-                  <Icon name="menu" size={34} color="white" />
+              <TouchableOpacity onPress={()=>drawer.current.openDrawer()} style={[styles.backButtonContainer]}>
+                  <Icon name="arrow-back" size={34} color="White" />
               </TouchableOpacity>
             </View>
             <Text style={styles.TopBar}>
                 Welcome.!
             </Text>
         </View>
-
-
-        <View style={styles.userImageContainer}>
-          <Image source={require('../assets/user.png')}
-          style={styles.userImage}/>
-        </View>
-        <View style={styles.labelBackground}>
-          <View style={styles.LableContainer}>
-              <Text style={styles.label}>Name :</Text>
-              <Text style={styles.labelData}>KK Semasinghe</Text>
-          </View>
-        </View>
-        <View style={styles.labelBackground}>
-          <View style={styles.LableContainer}>
-              <Text style={styles.label}>Name :</Text>
-              <Text style={styles.labelData}>KK Semasinghe</Text>
-          </View>
-        </View>
-        <View style={styles.labelBackground}>
-          <View style={styles.LableContainer}>
-              <Text style={styles.label}>Name :</Text>
-              <Text style={styles.labelData}>KK Semasinghe</Text>
-          </View>
-        </View>
-        <View style={styles.labelBackground}>
-          <View style={styles.LableContainer}>
-              <Text style={styles.label}>Name :</Text>
-              <Text style={styles.labelData}>KK Semasinghe</Text>
-          </View>
-        </View>
-        
-        <View style={styles.editButtonContainer}>
-            <TouchableOpacity style={styles.editButton} >
+  
+            <View style={styles.userImageContainer}>
+              <Image source={require('../assets/user.png')} style={styles.userImage}/>
+            </View>
+  
+            <View style={styles.labelBackground}>
+              <View style={styles.LableContainer}>
+                <Text style={styles.label}>First Name:</Text>
+                <Text style={styles.labelData}>{userData.FirstName}</Text>
+              </View>
+            </View>
+  
+            <View style={styles.labelBackground}>
+              <View style={styles.LableContainer}>
+                <Text style={styles.label}>Last Name:</Text>
+                <Text style={styles.labelData}>{userData.LastName}</Text>
+              </View>
+            </View>
+  
+            <View style={styles.labelBackground}>
+              <View style={styles.LableContainer}>
+                <Text style={styles.label}>Contact Number:</Text>
+                <Text style={styles.labelData}>{userData.ContactNum}</Text>
+              </View>
+            </View>
+  
+            <View style={styles.labelBackground}>
+              <View style={styles.LableContainer}>
+                <Text style={styles.label}>Email:</Text>
+                <Text style={styles.labelData}>{userData.email}</Text>
+              </View>
+            </View>
+  
+            <View style={styles.editButtonContainer}>
+              <TouchableOpacity style={styles.editButton} onPress={()=>navigation.navigate('editHomeProfile',{email:email})}> 
                 <Text style={styles.buttonText}>Edit details</Text>
-            </TouchableOpacity>
-        </View>
-        <View style={styles.logoutButtonContainer}>
-            <TouchableOpacity style={styles.logoutButton} >
+              </TouchableOpacity>
+            </View>
+            <View style={styles.logoutButtonContainer}>
+              <TouchableOpacity style={styles.logoutButton}>
                 <Text style={styles.buttonText}>Logout</Text>
-            </TouchableOpacity>
-        </View>
-      </View>
+              </TouchableOpacity>
+            </View>
+          </View>
         </ScrollView>
-    </DrawerLayoutAndroid>
-  );
+      </DrawerLayoutAndroid>
+    );
 };
 
 const styles = StyleSheet.create({
@@ -132,9 +202,17 @@ TopBar: {
 },
 backButton: {
     position: 'absolute',
-    left: 10,
+    left: 20,
     top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
 },
+backButtonContainer: {
+  flex: 1,
+  padding: 10,  // Adjust padding as needed
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+
   navigationContainer: {
     paddingTop:0,
     alignItems:'flex-start',
