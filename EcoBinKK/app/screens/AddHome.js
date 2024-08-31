@@ -55,7 +55,7 @@ function AddHome({navigation}) {
                     <>
                     <View style={styles.TopBarContainer}>
                     <View style={styles.backButton}>
-                    <TouchableOpacity onPress={() => navigation.navigate('profile')} style={styles.backButtonContainer}>
+                    <TouchableOpacity onPress={() => navigation.navigate('addTenant')} style={styles.backButtonContainer}>
                         <Icon name="arrow-back" size={34} color="white" />
                     </TouchableOpacity>
                 </View>

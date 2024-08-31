@@ -8,6 +8,7 @@ import AddEvent from './app/screens/AddEvent';
 import HomeProfile from './app/screens/HomeProfile';
 import Navi from './app/screens/Navi';
 import EditHomeProfile from './app/screens/EditHomeProfile';
+import UserProfile from './app/screens/UserProfile';
 
 
 
@@ -18,7 +19,7 @@ export default function App() {
   return (
 
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='navi'>
+      <Stack.Navigator initialRouteName='userProfile'>
         <Stack.Screen
           name='addTenant'
           component={AddTenant}
@@ -27,6 +28,11 @@ export default function App() {
         <Stack.Screen
           name='navi'
           component={Navi}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='userProfile'
+          component={UserProfile}
           options={{headerShown : false}}
         />
 
