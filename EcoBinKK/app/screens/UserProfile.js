@@ -81,7 +81,8 @@ const navigationView = () => (
           
           <TouchableOpacity onPress={() => {
             if (hasData) {
-              navigation.navigate('homeProfile', { email: email }); // Navigate to ScreenA if condition is true
+              navigation.navigate('tenantsList', { email: email });
+ // Navigate to ScreenA if condition is true
             } else {
                 navigation.navigate('addTenant'); // Navigate to ScreenB if condition is false
             }
@@ -198,7 +199,6 @@ TopBar: {
     top:-20,
     color: colors.white,
     fontWeight:'bold',
-    fontFamily: 'Arial',
 },
 backButton: {
     position: 'absolute',

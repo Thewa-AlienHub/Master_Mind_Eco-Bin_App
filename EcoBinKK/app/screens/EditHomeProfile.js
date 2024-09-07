@@ -1,233 +1,236 @@
-import React from 'react';
-import { Text, View, Button, StyleSheet, StatusBar, Platform,useWindowDimensions, TextInput, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimensions, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import colors from '../config/colors';
-import { useState,useEffect } from 'react';
-import { doc, getDoc,updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
 
-function EditHomeProfile({route,navigation}) {
-    const {email} = route.params;
-    const{width,height} = useWindowDimensions();
-    const isMobile = width <600;
+function EditHomeProfile({ route, navigation }) {
+  const { email } = route.params;
+  const { width } = useWindowDimensions();
+  const isMobile = width < 600;
 
-    const [homeData, setHomeData] = useState({
-        NickName:'',
-        AD_Line1:'',
-        AD_Line2:'',
-        AD_Line3:'',
-        City : '',
-        ZipCode:'',
-    });
+  const [homeData, setHomeData] = useState({
+    NickName: '',
+    AD_Line1: '',
+    AD_Line2: '',
+    AD_Line3: '',
+    City: '',
+    ZipCode: '',
+  });
 
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(()=>{
-        const fetchHomeData = async () => {
-            try {
-                const docRef = doc(DB,"tenants",email);
-                const docSnap = await getDoc(docRef);
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const docRef = doc(DB, "tenants", email);
+        const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
-                    setHomeData(docSnap.data());
-                } else {
-                    console.log('No file founded')
-                }
-            } catch (error) {
-                console.log('Error fetch', error)
-            }finally{
-                setLoading(false);
-            }
-        };
-        fetchHomeData();
-    },[email]);
-
-    const handleInputChange = (field, value) => {
-        setHomeData(prevState => ({
-            ...prevState,
-            [field]: value
-        }));
-    };
-    const handleUpdate = async () => {
-        try {
-            const docRef = doc(DB, "tenants", email);
-            await updateDoc(docRef, homeData);
-            alert('Data updated successfully!');
-            navigation.goBack();
-        } catch (error) {
-            console.log('Error updating document', error);
-            alert('Failed to update data');
+        if (docSnap.exists()) {
+          setHomeData(docSnap.data());
+        } else {
+          console.log('No file found');
         }
+      } catch (error) {
+        console.log('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchHomeData();
+  }, [email]);
 
-    return (
-        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <View style={styles.container}>
+  const handleInputChange = (field, value) => {
+    setHomeData(prevState => ({
+      ...prevState,
+      [field]: value
+    }));
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const docRef = doc(DB, "tenants", email);
+      await updateDoc(docRef, homeData);
+      alert('Data updated successfully!');
+      navigation.goBack();
+    } catch (error) {
+      console.log('Error updating document:', error);
+      alert('Failed to update data');
+    }
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
         {loading ? (
-    // Show loading spinner
-    <View style={styles.loaderContainer}>
-    <Text >Please wait</Text>
-    </View>
-  ) : (
-    <>
-        <View style={styles.TopBarContainer}>
-                <View style={styles.backButton}>
-                    <Button title='back' onPress={()=>navigation.navigate('addTenant')}/>
-                </View>
-                <Text style={styles.TopBar}>
-                    Add Event
-                </Text>
+          <View style={styles.loaderContainer}>
+            <Text>Please wait...</Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.TopBarContainer}>
+              <View style={styles.backButton}>
+                <Button title='back' onPress={() => navigation.navigate('addTenant')} />
+              </View>
+              <Text style={styles.TopBar}>Edit details</Text>
             </View>
 
-  <View style={styles.formContainer}>
-    <Text style={styles.formTitle}>Enter Details</Text>
-    <TextInput
-      style={styles.input}
-      placeholder="House Nick Name"
-      value={homeData.NickName}
-      editable={false}
-    />
-    
-    <TextInput
-    multiline
-    numberOfLines={4}
-      style={styles.input}
-      placeholder="Addrress line 1"
-      value={homeData.AD_Line1}
-      onChangeText={(text) => handleInputChange('AD_Line1', text)}
-    />
-    
-    <TextInput
-        style={styles.input}
-        placeholder="Address line 2"
-        value={homeData.AD_Line2}
-        onChangeText={(text) => handleInputChange('AD_Line2', text)}
-    />
-    <TextInput
-        style={styles.input}
-        placeholder="Address line 3"
-        value={homeData.AD_Line3}
-        onChangeText={(text) => handleInputChange('AD_Line3', text)}
-    />
-    <TextInput
-        style={styles.input}
-        placeholder="City"
-        value={homeData.City}
-        onChangeText={(text) => handleInputChange('City', text)}
-    />
-    <TextInput
-        style={styles.input}
-        placeholder="Zip Code"
-        value={homeData.ZipCode}
-        onChangeText={(text) => handleInputChange('ZipCode', text)}
-    />
-    <Button
-        title="Update"
-        onPress={handleUpdate}
-        style={styles.submitButton}
-    />
+            <View style={[styles.formContainer, !isMobile && styles_web.formContainer]}>
+              <View style={!isMobile && styles_web.form}>
+                <View style={styles.LableContainer}>
+                  <Text style={styles.label}>Nick Name :</Text>
+                </View>
+                <TextInput
+                  value={homeData.NickName}
+                  onChangeText={(text) => handleInputChange('NickName', text)}
+                  style={styles.inputBox}
+                  placeholder="Nick Name"
+                />
 
-    
-  </View>
-  </>
-)}
-</View>
+                <View style={styles.addressLabelContainer}>
+                  <Text style={{ fontSize: 30 }}>Address</Text>
+
+                  {['AD_Line1', 'AD_Line2', 'AD_Line3', 'City', 'ZipCode'].map((field, idx) => (
+                    <View key={idx}>
+                      <View style={styles.LableContainer}>
+                        <Text style={styles.label}>{field.replace('_', ' ')} :</Text>
+                      </View>
+                      <TextInput
+                        value={homeData[field]}
+                        onChangeText={(text) => handleInputChange(field, text)}
+                        style={styles.inputBox}
+                        placeholder={field.replace('_', ' ')}
+                      />
+                    </View>
+                  ))}
+                </View>
+
+                <View style={styles.ButtonContainer}>
+                  <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+                    <Text style={styles.buttonText}>Update</Text>
+                  </TouchableOpacity>
+                </View>
+
+                
+              </View>
+            </View>
+          </>
+        )}
+      </View>
     </ScrollView>
-    );
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-
-      },
-      scrollViewContainer: {
-        flexGrow: 1,
-        paddingBottom: 50,
-        maxHeight: '105vh',
-    },
-      formContainer: {
-        width: "80%",
-        paddingTop:50,
-      },
-      formTitle: {
-        fontSize: 24,
-        marginBottom: 30,
-        color: "#4C6A92",
-      },
-      input: {
-        height: 40,
-        fontSize: 16,
-        borderColor: "#6EC6B2",
-        borderWidth: 1,
-        marginBottom: 30,
-        paddingHorizontal: 15,
-        borderRadius: 5,
-      },
-      submitButton: {
-        backgroundColor: "#6EC6B2",
-        padding: 10,
-        borderRadius: 20,
-      },
-      submitButtonText: {
-        color: "#4C6A92",
-        textAlign: "center",
-        fontWeight: "bold",
-        fontSize: 20,
-      },
-      errorText: {
-        color: "red",
-        marginBottom: 10,
-      },
-      loaderContainer: {
-        flex:1,
-        padding: 20,
-        backgroundColor: '#fff', // White background for the loader
-        borderRadius: 10,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+  container: {
+    flex: 1,
+    alignItems:'center',
+    width: '100%',
+  },
+  scrollViewContainer: {
+    flexGrow: 1,
+    paddingBottom: 50,
+  },
+  TopBarContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 2 : 0,
+    backgroundColor: '#00CE5E',
+    borderBottomStartRadius: 70,
+    position: 'relative',
+  },
+  TopBar: {
+    fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 36 : 56,
+    color: colors.white,
+    fontWeight: 'bold',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 10,
+    top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  formContainer: {
+    width: '80%',
+    paddingTop: 50,
+  },
+  LableContainer: {
+    paddingTop: 10,
+  },
+  label: {
+    paddingLeft: 20,
+    fontSize: 24,
+    color: '#009644',
+  },
+  addressLabelContainer: {
+    paddingTop: 10,
+    margin: 15,
+  },
+  inputBox: {
+    height: 50,
+    margin: 12,
+    borderWidth: 2,
+    padding: 10,
+    borderColor: '#009644',
+    borderRadius: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 5, // Box shadow for Android
+        shadowRadius: 6,
       },
-      loadingText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: '#333',
-        fontWeight: '500',
-        textAlign: 'center',
+      android: {
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: 100 },
+        shadowOpacity: 1,
+        shadowRadius: 2,
       },
-      TopBarContainer: {
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight*2 : 0,
-        position: 'relative',
-    },
-    TopBar: {
-        fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 36 : 56,
-        textAlign: 'center',
-        fontWeight: "bold",
-        color: "#4C6A92",
-    },
-    backButton: {
-        position: 'absolute',
-        left: 10,
-        top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    },
-    });
+      web: {
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)',
+      },
+    }),
+  },
+  ButtonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 50,
+  },
+  button: {
+    width: 320,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#00CE5E',
+    borderRadius: 15,
+  },
+  buttonText: {
+    color: colors.white,
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  submitButton: {
+    marginTop: 20,
+    backgroundColor: '#6EC6B2',
+    padding: 10,
+    borderRadius: 20,
+  },
+});
+
 const styles_web = StyleSheet.create({
-    formContainer:{
-        justifyContent:'center',
-        alignItems:'center'
-    },
-  form:{
-    alignContent:'center',
+  formContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  form: {
     width: "70%",
-  }
-})
+  },
+});
 
 export default EditHomeProfile;

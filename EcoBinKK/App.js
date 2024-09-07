@@ -11,6 +11,7 @@ import EditHomeProfile from './app/screens/EditHomeProfile';
 import UserProfile from './app/screens/UserProfile';
 import Login from './app/screens/Login';
 import SignUp from './app/screens/SignUp';
+import TenantsList from './app/screens/TenantsList';
 
 
 
@@ -71,6 +72,11 @@ export default function App() {
         <Stack.Screen
           name='homeProfile'
           component={HomeProfile}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='tenantsList'
+          component={TenantsList}
           options={{headerShown : false}}
         />
         

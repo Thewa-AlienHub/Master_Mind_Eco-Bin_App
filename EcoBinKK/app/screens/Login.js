@@ -179,7 +179,6 @@ const styles = StyleSheet.create({
     top: -20,
     color: colors.white,
     fontWeight: 'bold',
-    fontFamily: 'Arial',
   },
   formContainer: {
     position: 'absolute',

@@ -2,12 +2,13 @@ import React from 'react';
 import { Text, View, Button, StyleSheet,TouchableOpacity, StatusBar, Platform,useWindowDimensions, TextInput, ScrollView,ActivityIndicator } from 'react-native';
 import colors from '../config/colors';
 import Icon  from 'react-native-vector-icons/Ionicons';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { doc,setDoc } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
 
-function AddHome({navigation}) {
+function AddHome({navigation,route}) {
 
+    const { email } = route.params; 
 
     const [nickName,setNickName] = useState('');
     const [Ad_Line1,setAd_Line1] = useState('');
@@ -22,10 +23,18 @@ function AddHome({navigation}) {
     const isMobile = width <600;
 
 
+    useEffect(() => {
+        console.log(route.params);  // Check if route.params contains email
+        console.log(email);
+    }, [route.params, email]);
+        
+
     function addData() {
         setLoading(true);
-        // Unique document reference for each house
-        setDoc(doc(DB, "tenants", "house_" + nickName), {
+        const docId = `${email}_${nickName}`;
+        console.log(docId);
+        
+        setDoc(doc(DB, "tenants", docId), {
             AD_Line1: Ad_Line1,
             AD_Line2: Ad_Line2,
             AD_Line3: Ad_Line3,
@@ -35,7 +44,9 @@ function AddHome({navigation}) {
         }).then(() => {
             setLoading(false);
             console.log('Document successfully written!');
-            navigation.navigate('homeProfile',{nickName:nickName});
+            console.log(docId);
+            
+            navigation.navigate('homeProfile', { docId: docId });
         }).catch((error) => {
             setLoading(false);
             console.error("Error writing document: ", error);
@@ -127,7 +138,7 @@ function AddHome({navigation}) {
                         />
                     </View>
                     <View style={styles.ButtonContainer}>
-                            <TouchableOpacity style={styles.button} onPress={AddHome}>
+                            <TouchableOpacity style={styles.button} onPress={addData}>
                                 <Text style={styles.buttonText}>Generate QR</Text>
                             </TouchableOpacity>
                         </View>
@@ -164,7 +175,6 @@ const styles = StyleSheet.create({
       top:-20,
       color: colors.white,
       fontWeight:'bold',
-      fontFamily: 'Arial',
   },
   backButton: {
       position: 'absolute',

@@ -1,11 +1,17 @@
 import React from 'react';
 import { View, Text, Platform, StyleSheet, SafeAreaView, StatusBar,useWindowDimensions, Image, Button, TouchableOpacity } from 'react-native';
 import colors from '../config/colors';
+import { useEffect } from 'react';
 
-function AddTenant({navigation}) {
+function AddTenant({navigation,route}) {
+    const{email} = route.params;
     const {height,width} = useWindowDimensions();
     let cardComponents;
     const isMobileView = width < 600;
+
+    useEffect(() => {
+        console.log(email);
+    }, [email]);
 
     if (Platform.OS === 'web') {
         cardComponents=(
@@ -13,7 +19,10 @@ function AddTenant({navigation}) {
         <View style={[isMobileView ? styles.cardContainer : styles_web.cardContainer,{height : height-100}]}>
             
             <View style={isMobileView ? styles.cardBody :styles_web.cardBody}>
-                <TouchableOpacity onPress={()=>navigation.navigate('addHome')}>
+            <TouchableOpacity onPress={() => {
+                                        console.log('Navigating to AddHome with email:', email);  // Debug log
+                                        navigation.navigate('addHome', { email: email });
+                                    }}>    
                     <View>
                         <Image source={require('../assets/house.png')}
                                 style={isMobileView ? styles.house : styles_web.house}/>
@@ -66,7 +75,7 @@ function AddTenant({navigation}) {
         cardComponents = (
 
             <View style={[styles.cardContainer,{height : height-StatusBar.currentHeight}]}>
-                <TouchableOpacity onPress={()=>navigation.navigate('addHome')}>
+                <TouchableOpacity onPress={()=>navigation.navigate('addHome',{email: email})}>
                     <View style={styles.cardBody}>
                             <View style = {styles.textBoxInCard}>
                                 <Text style={{fontSize:30}}>Add Home</Text>
@@ -122,7 +131,7 @@ function AddTenant({navigation}) {
         <View style={styles.container}>
             <View style={styles.TopBarContainer}>
                 <View style = {styles.backButton}>
-                    <Button title='back' onPress={()=>navigation.navigate('navi')}/>
+                    <Button title='back' onPress={()=>navigation.goBack()}/>
                 </View>
                 <Text style={styles.TopBar}>
                     Add Tenants

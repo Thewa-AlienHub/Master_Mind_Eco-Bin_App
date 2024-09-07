@@ -1,11 +1,13 @@
 import React from 'react';
-import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimensions, TextInput, ScrollView } from 'react-native';
+import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimensions,TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { DB } from '../config/DB_config';
+import colors from '../config/colors';
 
 function HomeProfile({ route, navigation }) {
-    const { email } = route.params;
+    const { docId } = route.params;
     const { width, height } = useWindowDimensions();
     const isMobile = width < 600;
 
@@ -22,9 +24,11 @@ function HomeProfile({ route, navigation }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log(docId);
         const fetchHomeData = async () => {
             try {
-                const docRef = doc(DB, "tenants", email);
+            
+                const docRef = doc(DB, "tenants", docId);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -42,7 +46,7 @@ function HomeProfile({ route, navigation }) {
             }
         };
         fetchHomeData();
-    }, [email]);
+    }, [docId]);
 
     const handleCombinedAddressChange = (text) => {
         // Split the combined text back into individual address lines and city
@@ -68,44 +72,42 @@ function HomeProfile({ route, navigation }) {
                     </View>
                 ) : (
                     <>
+                  
                         <View style={styles.TopBarContainer}>
                             <View style={styles.backButton}>
-                                <Button title='Back' onPress={() => navigation.navigate('addTenant')} />
+                                <Button title='Back' onPress={() => navigation.goBack()} />
                             </View>
-                            <Text style={styles.TopBar}>Add Event</Text>
+                            <Text style={styles.TopBar}>{homeData.NickName} Profile</Text>
                         </View>
 
                         <View style={styles.formContainer}>
-                            <Text style={styles.formTitle}>Enter Details</Text>
-                            <Text>Nick Name</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="House Nickname"
-                                editable={false}
-                                value={homeData.NickName}
-                            />
-                            {/* Combined address TextInput */}
-                            <Text>Address</Text>
-                            <TextInput
-                                style={[styles.input, { height: 100 }]} // Larger height for multi-line input
-                                placeholder="Address (Line 1, Line 2, Line 3, City)"
-                                value={combinedAddress}
-                                onChangeText={handleCombinedAddressChange}
-                                multiline
-                            />
+                            <View style={styles.labelBackground}>
+                            <View style={styles.LableContainer}>
+                                <Text style={styles.label}>First Name:</Text>
+                                <Text style={styles.labelData}>{homeData.NickName}</Text>
+                            </View>
+                            </View>
 
-                            <Text>Zip code</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Zip Code"
-                                value={homeData.ZipCode}
-                                onChangeText={(text) => setHomeData({ ...homeData, ZipCode: text })}
-                            />
-
-                            <Button
-                            title='edit'
-                            onPress={()=>(navigation.navigate('editHomeProfile', { email: email }))}
-                            />
+                            <View style={styles.labelBackground}>
+                            <View style={styles.LableContainer}>
+                                <Text style={styles.label}>Address:</Text>
+                                <Text style={styles.labelData}>{combinedAddress}</Text>
+                            </View>
+                            </View>
+                            
+                            <View style={styles.labelBackground}>
+                            <View style={styles.LableContainer}>
+                                <Text style={styles.label}>Address:</Text>
+                                <Text style={styles.labelData}>{homeData.ZipCode}</Text>
+                            </View>
+                            </View>
+                            
+                        
+                            <View style={styles.editButtonContainer}>
+                            <TouchableOpacity style={styles.editButton} onPress={()=>navigation.navigate('editHomeProfile')}> 
+                                <Text style={styles.buttonText}>Edit details</Text>
+                            </TouchableOpacity>
+                            </View>
                         </View>
                     </>
                 )}
@@ -117,13 +119,40 @@ function HomeProfile({ route, navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
         alignItems: "center",
     },
     scrollViewContainer: {
         flexGrow: 1,
-        paddingBottom: 50,
         maxHeight: '105vh',
+    },
+    LableContainer: {
+        width:'100%',
+        paddingTop: 10,
+    
+    },
+    label: {
+        paddingLeft: 20,
+        paddingTop:0,
+        fontSize: 30,
+        color:'black',
+        
+    },
+    labelData:{
+        paddingLeft: 40,
+        fontSize: 20,
+        paddingTop:10,
+        color:'white',
+        paddingBottom:10,
+    },
+    labelBackground:{
+      marginTop:10,
+      width:'98%',
+      backgroundColor:'grey',
+      borderBottomStartRadius:30,
+      borderBottomEndRadius:30,
+      borderTopEndRadius:30,
+      borderTopStartRadius:30,
+    
     },
     formContainer: {
         width: "80%",
@@ -154,25 +183,59 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 5,
     },
+    editButton: {
+        width: 320,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#00CE5E',
+        borderRadius: 15,
+      },
+      
+      buttonText: {
+        color:colors.white,
+        fontSize: 22,
+        fontWeight:"bold",
+      },
+      editButtonContainer: {
+        flex: 1,
+        top: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom:60,
+      },
     TopBarContainer: {
+        backgroundColor: '#00CE5E',
+        flex: 0.12,
         width: '100%',
+        borderBottomStartRadius:70,
+
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 2 : 0,
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 3 : 0,
         position: 'relative',
     },
     TopBar: {
-        fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 36 : 56,
-        textAlign: 'center',
-        fontWeight: "bold",
-        color: "#4C6A92",
+        fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 30 : 40,
+    textAlign: 'center',
+    fontSize:32,
+    top:-20,
+    color: colors.white,
+    fontWeight:'bold',
+
     },
     backButton: {
         position: 'absolute',
         left: 10,
         top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
+    backButtonContainer: {
+        flex: 1,
+        padding: 10,  // Adjust padding as needed
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
 });
 
 export default HomeProfile;
