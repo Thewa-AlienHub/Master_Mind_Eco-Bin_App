@@ -61,7 +61,6 @@ useEffect(() => {
       } else {
         setHasData(false);
       }
-      console.log('Has data:', hasData); // Log hasData for debugging
     } catch (error) {
       console.log('Error fetching document:', error);
       setHasData(false);
@@ -72,37 +71,48 @@ useEffect(() => {
 }, [email]);
 
 const navigationView = () => (
-    <View style={[styles.container, styles.navigationContainer]}>
-      <View style={styles.drawerTop}>
-        {/*this part is the green part on drawer navigation */}
-      </View>
-      <View>
-      <TouchableOpacity onPress={() => drawer.current.openDrawer()} style={styles.menuButtonContainer}>
-          
-          <TouchableOpacity onPress={() => {
-            if (hasData) {
-              navigation.navigate('tenantsList', { email: email });
- // Navigate to ScreenA if condition is true
-            } else {
-                navigation.navigate('addTenant'); // Navigate to ScreenB if condition is false
-            }
-        }}>
-            <View style={styles.iconTextRow}>
-              <Icon name="arrow-back" size={34} color="black" />
-              <Text style={styles.iconText}>Tenants</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('addTenant')}>
-            <View style={styles.iconTextRow}>
-              <Icon name="arrow-back" size={34} color="black" />
-              <Text style={styles.iconText}>Test</Text>
-            </View>
-          </TouchableOpacity>
-
-        </TouchableOpacity>
-      </View>
+  <View style={[styles.container, styles.navigationContainer]}>
+    <View style={styles.drawerTop}>
+      {/*this part is the green part on drawer navigation */}
     </View>
-  );
+    <View>
+    <TouchableOpacity onPress={() => drawer.current.openDrawer()} style={styles.menuButtonContainer}>
+        
+        <TouchableOpacity onPress={() => navigation.navigate('addRequest')}>
+          <View style={styles.iconTextRow}>
+            <Icon name="create-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+            <Text style={styles.iconText}>Add Recycle Request</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('myRequest')}>
+          <View style={styles.iconTextRow}>
+            <Icon name="pencil" style={{fontWeight:'bold'}} size={25} color="black" />
+            <Text style={styles.iconText}>My Request</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('refund')}>
+          <View style={styles.iconTextRow}>
+            <Icon name="wallet-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+            <Text style={styles.iconText}>Refund</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('manageRequest')}>
+          <View style={styles.iconTextRow}>
+            <Icon name="cash-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+            <Text style={styles.iconText}>Payment</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('addTenant',{email:email})}>
+          <View style={styles.iconTextRow}>
+            <Icon name="cash-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+            <Text style={styles.iconText}>Add Tenant</Text>
+          </View>
+        </TouchableOpacity>
+
+      </TouchableOpacity>
+    </View>
+  </View>
+);
 
 
     return (
@@ -116,7 +126,7 @@ const navigationView = () => (
           <View style={styles.TopBarContainer}>
             <View style={styles.backButton}>
               <TouchableOpacity onPress={()=>drawer.current.openDrawer()} style={[styles.backButtonContainer]}>
-                  <Icon name="arrow-back" size={34} color="White" />
+                  <Icon name="menu" size={34} color="White" />
               </TouchableOpacity>
             </View>
             <Text style={styles.TopBar}>
@@ -182,37 +192,36 @@ const styles = StyleSheet.create({
   },
   TopBarContainer: {
     backgroundColor: '#00CE5E',
-    flex: 0.12,
+    flex: 0.29,
     width: '100%',
-    borderBottomStartRadius:70,
-
-    flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 3 : 0,
     position: 'relative',
 },
 TopBar: {
+  
     fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 30 : 40,
-    textAlign: 'center',
     fontSize:32,
-    top:-20,
     color: colors.white,
     fontWeight:'bold',
+    fontFamily: 'Arial',
+    left:'15%'
 },
+title: {
+    position:'absolute',
+    top: '100%',
+    left:'75%',
+    fontSize: 29,
+    fontFamily: 'Arial',
+    fontWeight: 'bold',
+    color: 'black',
+  },
+
 backButton: {
     position: 'absolute',
-    left: 20,
-    top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    left: 13,
+    top:'95%',
 },
-backButtonContainer: {
-  flex: 1,
-  padding: 10,  // Adjust padding as needed
-  alignItems: 'center',
-  justifyContent: 'center',
-},
-
-
   navigationContainer: {
     paddingTop:0,
     alignItems:'flex-start',
@@ -238,21 +247,23 @@ backButtonContainer: {
 label: {
     paddingLeft: 20,
     paddingTop:0,
-    fontSize: 30,
+    fontSize: 20,
     color:'black',
     
 },
 labelData:{
     paddingLeft: 40,
-    fontSize: 20,
+    fontSize: 15,
     paddingTop:10,
-    color:'white',
+    color:'black',
     paddingBottom:10,
 },
 labelBackground:{
-  marginTop:10,
-  width:'98%',
-  backgroundColor:'grey',
+  top:'5%',
+  marginTop:12,
+  width:'95%',
+  borderColor: '#009644',
+  borderWidth:1,
   borderBottomStartRadius:30,
   borderBottomEndRadius:30,
   borderTopEndRadius:30,
@@ -297,7 +308,7 @@ cardContainer:{
   backgroundColor:'red',
 },
 drawerTop:{
-  backgroundColor:'green',
+  backgroundColor:'#00CE5E',
   width:'100%',
   height:180
 },
@@ -308,15 +319,14 @@ iconTextRow: {
   backfaceVisibility:'visible'
 },
 iconText: {
-  fontSize: 30,
-  marginLeft: 8,
-  marginBottom:5,
+  fontSize: 22,
+  marginLeft: 26,
   color: 'black',
 },
 menuButtonContainer: {
-  padding: 20,   // Padding around the button
-  flexDirection: 'column', // Ensures icon and text are placed in a row
-  alignItems: 'flex-start', // Aligns them vertically in the center
+  padding: 20,   
+  flexDirection: 'column', 
+  alignItems: 'flex-start', 
 },
 editButton: {
   width: 320,
@@ -327,8 +337,8 @@ editButton: {
   borderRadius: 15,
 },
 logoutButton: {
-  width: 200,
-  height: 60,
+  width: 150,
+  height: 50,
   justifyContent: 'center',
   alignItems: 'center',
   backgroundColor: 'red',
@@ -336,22 +346,22 @@ logoutButton: {
 },
 buttonText: {
   color:colors.white,
-  fontSize: 22,
+  fontSize: 20,
   fontWeight:"bold",
 },
 editButtonContainer: {
   flex: 1,
-  top: 40,
+  top: 100,
   justifyContent: 'center',
   alignItems: 'center',
   marginBottom:60,
 },
 logoutButtonContainer: {
   flex: 1,
-  top: 10,
+  top: 50,
   justifyContent: 'center',
   alignItems: 'center',
-  marginBottom:60,
+  marginBottom:50,
 },
 
 

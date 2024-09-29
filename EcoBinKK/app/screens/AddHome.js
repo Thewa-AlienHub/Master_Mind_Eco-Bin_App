@@ -114,7 +114,11 @@ function AddHome({navigation,route}) {
                             style={styles.inputBox}
                             placeholder="Address Line 3"
                         />
-
+                        <View style={styles.ButtonContainer}>
+                            <TouchableOpacity style={styles.buttonMap} onPress={()=>navigation.navigate('SetMapPin')}>
+                                <Text style={styles.buttonText}>Set on map</Text>
+                            </TouchableOpacity>
+                        </View>
 
                         <View style={styles.LableContainer}>
                             <Text style={styles.label}>City :</Text>
@@ -208,6 +212,14 @@ const styles = StyleSheet.create({
   button: {
       width: 320,
       height: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#00CE5E',
+      borderRadius: 15,
+  },
+  buttonMap: {
+      width: 200,
+      height: 40,
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: '#00CE5E',

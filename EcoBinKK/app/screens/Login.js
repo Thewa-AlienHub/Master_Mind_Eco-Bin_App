@@ -19,8 +19,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
 
 function Login({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('thewan123@gmail.com');
+  const [password, setPassword] = useState('12345678');
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');

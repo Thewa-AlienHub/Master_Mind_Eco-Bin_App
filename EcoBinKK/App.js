@@ -12,6 +12,8 @@ import UserProfile from './app/screens/UserProfile';
 import Login from './app/screens/Login';
 import SignUp from './app/screens/SignUp';
 import TenantsList from './app/screens/TenantsList';
+import MapScreen from './app/screens/MapScreen';
+import SetMapPin from './app/screens/setMapPin';
 
 
 
@@ -77,6 +79,18 @@ export default function App() {
         <Stack.Screen
           name='tenantsList'
           component={TenantsList}
+          options={{headerShown : false}}
+        />
+
+        {/*map screens*/}
+        <Stack.Screen
+          name='Map'
+          component={MapScreen}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='SetMapPin'
+          component={SetMapPin}
           options={{headerShown : false}}
         />
         
