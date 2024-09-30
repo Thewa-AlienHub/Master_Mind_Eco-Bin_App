@@ -114,6 +114,12 @@ const navigationView = () => (
             <Text style={styles.iconText}>Your Tenants</Text>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('TableFull')}>
+          <View style={styles.iconTextRow}>
+            <Icon name="cash-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+            <Text style={styles.iconText}>Admin Table</Text>
+          </View>
+        </TouchableOpacity>
 
       </TouchableOpacity>
     </View>

@@ -50,9 +50,9 @@ function AddHome({ navigation, route }) {
 
         // Proceed to add data
         setDoc(doc(DB, "tenants", docId), {
-            AD_Line1,
-            AD_Line2,
-            AD_Line3,
+            Ad_Line1,
+            Ad_Line2,
+            Ad_Line3,
             City: city,
             NickName: nickName,
             ZipCode: zipCode,
@@ -69,8 +69,8 @@ function AddHome({ navigation, route }) {
     const navChoose = () => {
         const docId = `${email}_${nickName}`;
         navigation.navigate('SetMapPin', {
-            ID: docId + '_home',
-            onLocationChosen: () => setIsLocationSet(true), // Set location chosen state
+            ID: docId,
+            onLocationChosen: () => setIsLocationSet(true),
         });
     };
 
@@ -99,7 +99,7 @@ function AddHome({ navigation, route }) {
                                 </View>
                                 <TextInput
                                     value={nickName}
-                                    onChangeText={handleNicknameChange} // Use the updated handler
+                                    onChangeText={handleNicknameChange} 
                                     style={styles.inputBox}
                                     placeholder="Enter nickname"
                                 />

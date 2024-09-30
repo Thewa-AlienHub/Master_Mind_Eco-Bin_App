@@ -27,6 +27,13 @@ function HomeProfile({ route, navigation }) {
 
     const [combinedAddress, setCombinedAddress] = useState('');
     const [loading, setLoading] = useState(true);
+    const [point,setPoint] = useState({
+        latitude:0,
+        longitude:0,
+    });
+
+
+
 
     const fetchHomeData = useCallback(async () => {
         try {
@@ -36,7 +43,6 @@ function HomeProfile({ route, navigation }) {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 setHomeData(data);
-                // Create the combined address string
                 setCombinedAddress(`${data.AD_Line1}\n${data.AD_Line2}\n${data.AD_Line3}\n${data.City}`);
             } else {
                 console.log('No file found');
@@ -47,28 +53,35 @@ function HomeProfile({ route, navigation }) {
             setLoading(false);
         }
     }, [docId]);
+    
+    const getCodinantsForMap = async() =>{
+        try {
+            const docRef = doc(DB, "registeredPins", docId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setPoint(data)
+            } else {
+                console.log('No file found');
+            }
+        } catch (error) {
+            console.log('Error fetching', error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     useFocusEffect(
         useCallback(() => {
-            setLoading(true); // Set loading to true before fetching data
+            setLoading(true); 
             fetchHomeData();
+            getCodinantsForMap();
         }, [fetchHomeData])
     );
 
-    const handleCombinedAddressChange = (text) => {
-        // Split the combined text back into individual address lines and city
-        const addressParts = text.split('\n');
-        setCombinedAddress(text);
+    
 
-        // Update individual address fields based on the input
-        setHomeData({
-            AD_Line1: addressParts[0] || '',
-            AD_Line2: addressParts[1] || '',
-            AD_Line3: addressParts[2] || '',
-            City: addressParts[3] || '',
-            ZipCode: homeData.ZipCode,  // Keep ZipCode unchanged
-        });
-    };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -110,17 +123,32 @@ function HomeProfile({ route, navigation }) {
                             </View>
 
                             <View style={styles.mapContainer}>
+                            {point.latitude !== 0 && point.longitude !== 0 && (
                                 <MapView
                                     style={styles.map}
                                     initialRegion={{
-                                    latitude: 6.878417,
-                                    longitude: 79.918944,
-                                    latitudeDelta: 0.0922,
-                                    longitudeDelta: 0.0421,
-                                    }} // Capture map taps
+                                        latitude: point.latitude,
+                                        longitude: point.longitude,
+                                        latitudeDelta: 0.01,
+                                        longitudeDelta: 0.01,
+                                    }}
+                                    scrollEnabled={true} // Disable panning
+                                    zoomEnabled={true} // Allow zooming
+                                    rotateEnabled={false} // Disable rotation
+                                    pitchEnabled={false} // Disable tilt/3D view
                                 >
-                                    
+                                    <Marker
+                                        coordinate={{
+                                            latitude: point.latitude,
+                                            longitude: point.longitude,
+                                        }}
+                                        title="Location"
+                                        description="This is the selected location"
+                                    />
                                 </MapView>
+                            )}
+
+                                    
                             </View>
                             
                         

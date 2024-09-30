@@ -15,6 +15,7 @@ import TenantsList from './app/screens/TenantsList';
 import MapScreen from './app/screens/MapScreen';
 import SetMapPin from './app/screens/setMapPin';
 import QrCodeHome from './app/screens/QrCodeHome';
+import TableFull from './app/screens/AdminScreens/TableFull';
 
 
 
@@ -99,6 +100,12 @@ export default function App() {
         <Stack.Screen
           name='QrCodeHome'
           component={QrCodeHome}
+          options={{headerShown : false}}
+        />
+        {/*Admin */}
+        <Stack.Screen
+          name='TableFull'
+          component={TableFull}
           options={{headerShown : false}}
         />
       </Stack.Navigator>

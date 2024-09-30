@@ -3,12 +3,13 @@ import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimension
 import colors from '../config/colors';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 function EditHomeProfile({ route, navigation }) {
   const { docId } = route.params;
   const { width } = useWindowDimensions();
   const isMobile = width < 600;
-
+  const [isLocationSet, setIsLocationSet] = useState(false);
   const [homeData, setHomeData] = useState({
     NickName: '',
     AD_Line1: '',
@@ -59,6 +60,13 @@ function EditHomeProfile({ route, navigation }) {
     }
   };
 
+  const navChoose = () => {
+    navigation.navigate('SetMapPin', {
+        ID: docId,
+        onLocationChosen: () => setIsLocationSet(true),
+    });
+};
+
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
       <View style={styles.container}>
@@ -104,6 +112,16 @@ function EditHomeProfile({ route, navigation }) {
                     </View>
                   ))}
                 </View>
+                      <View style={styles.ButtonContainer}>
+                                        <TouchableOpacity style={styles.buttonMap} onPress={navChoose}>
+                                            <Text style={styles.buttonText}>
+                                                {isLocationSet ? 'Done' : 'Change pin'}
+                                            </Text>
+                                            {isLocationSet && (
+                                                <Icon name="checkmark-circle" size={24} color="green" style={styles.iconRight} />
+                                            )}
+                                        </TouchableOpacity>
+                                    </View>
 
                 <View style={styles.ButtonContainer}>
                   <TouchableOpacity style={styles.button} onPress={handleUpdate}>
@@ -193,6 +211,7 @@ const styles = StyleSheet.create({
     }),
   },
   ButtonContainer: {
+    flex:1,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 50,
@@ -206,10 +225,22 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   buttonText: {
+    position: 'absolute',
     color: colors.white,
     fontSize: 22,
     fontWeight: 'bold',
   },
+  buttonMap: {
+    width: 200,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'red',
+    borderRadius: 15,
+},
+iconRight: {
+  marginLeft: 140,
+},
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
