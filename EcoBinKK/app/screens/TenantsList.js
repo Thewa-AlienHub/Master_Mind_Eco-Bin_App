@@ -1,33 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Platform, StyleSheet, SafeAreaView, StatusBar, useWindowDimensions, TouchableOpacity, Button, ActivityIndicator } from 'react-native';
-import { doc, getDoc } from 'firebase/firestore';
+import { View, Text, Platform, StyleSheet, SafeAreaView, StatusBar, useWindowDimensions, TouchableOpacity, Button, ActivityIndicator, ScrollView } from 'react-native';
+import { collection, getDocs } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
 import colors from '../config/colors';
 
 function TenantsList({ navigation, route }) {
     const { height, width } = useWindowDimensions();
-    const [tenants, setTenants] = useState(null); // Modify state to store a single tenant object
-    const [loading, setLoading] = useState(true); // Loading state
+    const [tenants, setTenants] = useState([]); // Modify state to store an array of tenant objects
+    const [loading, setLoading] = useState(true);
     const { email } = route.params; // Retrieve email from route params
+    
 
     useEffect(() => {
-        const fetchTenant = async () => {
+        const fetchTenants = async () => {
             try {
-                const docRef = doc(DB, "tenants", email); // Directly reference the document by its ID (which is the email)
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    setTenants({ id: docSnap.id, ...docSnap.data() }); // Save the tenant's data to state
-                } else {
-                    console.error("No such tenant document!");
-                }
+                const querySnapshot = await getDocs(collection(DB, "tenants")); // Fetch all documents in the tenants collection
+                const matchingTenants = []; // Array to store matching tenants
+
+                // Loop through documents to find all with the same email part before the underscore
+                querySnapshot.forEach((doc) => {
+                    const [docEmailPart] = doc.id.split('_'); // Get the part before the underscore
+                    if (docEmailPart === email) {
+                        matchingTenants.push({ id: doc.id, ...doc.data() }); // Add the found tenant's data to the array
+                    }
+                });
+
+                setTenants(matchingTenants); // Set the array of matching tenants
             } catch (error) {
-                console.error("Error fetching tenant:", error);
+                console.error("Error fetching tenants:", error);
             } finally {
                 setLoading(false); // Stop loading once data is fetched
             }
         };
 
-        fetchTenant();
+        fetchTenants();
     }, [email]);
 
     // Loading state
@@ -41,7 +47,9 @@ function TenantsList({ navigation, route }) {
     }
 
     return (
+
         <View style={styles.container}>
+            <ScrollView>
             <View style={styles.TopBarContainer}>
                 <View style={styles.backButton}>
                     <Button title='back' onPress={() => navigation.goBack()} />
@@ -49,24 +57,30 @@ function TenantsList({ navigation, route }) {
                 <Text style={styles.TopBar}>Your Tenants</Text>
             </View>
 
-            {/* Display tenant's details */}
-            {tenants ? (
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('homeProfile', { email: email })}
-                >
-                    <View style={styles.cardBody}>
-                        <View style={styles.textBoxInCard}>
-                            <Text style={styles.cardText}>Name: {tenants.NickName}</Text>
-                        </View>
-                        
-                    </View>
-                </TouchableOpacity>
+            {/* Display all tenants' details */}
+            {tenants.length > 0 ? (
+                tenants.map((tenant) => {
+                    const docId = `${email}_${tenant.NickName}`; // Create docId for each tenant
+                    return (
+                        <TouchableOpacity
+                            key={tenant.id} // Add key for each item in the list
+                            onPress={() => navigation.navigate('homeProfile', { docId})} // Use the constructed docId
+                        >
+                            <View style={styles.cardBody}>
+                                <View style={styles.textBoxInCard}>
+                                    <Text style={styles.cardText}>Name: {tenant.NickName}</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                    );
+                })
             ) : (
-                <Text style={styles.errorText}>No tenant found for this email.</Text>
+                <Text style={styles.errorText}>No tenants found for this email. Choose another one.</Text>
             )}
 
+            </ScrollView>
             <View style={styles.ButtonContainer}>
-                <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('addTenant',{email:email})}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('addTenant', { email: email })}>
                     <Text style={styles.buttonText}>ADD Tenant</Text>
                 </TouchableOpacity>
             </View>
@@ -78,7 +92,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.dark,
-
     },
     TopBarContainer: {
         width: '100%',
@@ -89,14 +102,14 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     TopBar: {
-        marginTop:20,
+        marginTop: 20,
         fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 30 : 40,
         textAlign: 'center',
         color: colors.white,
     },
-    cardBody:{
-        marginTop:30,
-        alignItems:'center',
+    cardBody: {
+        marginTop: 10,
+        alignItems: 'center',
     },
     textBoxInCard: {
         backgroundColor: colors.light,
@@ -104,21 +117,14 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         width: '95%',
         justifyContent: 'center',
-        alignItems: 'center',
         flexDirection: 'column',
-        height: 200,
-        marginBottom: 20, // Add space between cards
+        height: 80,
+        marginBottom: 20,
     },
     cardText: {
         fontSize: 18,
         color: colors.dark,
         marginBottom: 10,
-    },
-    resident: {
-        width: 140,
-        height: 140,
-        borderRadius: 70,
-        marginLeft: 20,
     },
     backButton: {
         position: 'absolute',
@@ -145,7 +151,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-end',
         alignItems: 'center',
-        marginBottom:20,
+        marginBottom: 20,
     },
     button: {
         width: 320,
@@ -157,9 +163,9 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     buttonText: {
-        color:colors.white,
+        color: colors.white,
         fontSize: 22,
-        fontWeight:"bold",
+        fontWeight: "bold",
     },
 });
 

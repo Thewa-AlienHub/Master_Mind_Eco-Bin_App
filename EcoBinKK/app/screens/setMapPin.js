@@ -10,7 +10,7 @@ import { DB } from '../config/DB_config';
 
 
 function SetMapPin({navigation,route}) {
-  const {ID} = route.params;
+  const {ID,onLocationChosen} = route.params;
 
   const [startPoint, setStartPoint] = useState(
     {latitude: 6.878417,
@@ -78,7 +78,7 @@ function SetMapPin({navigation,route}) {
   }).then(() => {
       setLoading(false);
       console.log('Document successfully written!');
-      
+      onLocationChosen();
       navigation.goBack(); 
   }).catch((error) => {
       setLoading(false);

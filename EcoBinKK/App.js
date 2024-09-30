@@ -14,6 +14,7 @@ import SignUp from './app/screens/SignUp';
 import TenantsList from './app/screens/TenantsList';
 import MapScreen from './app/screens/MapScreen';
 import SetMapPin from './app/screens/setMapPin';
+import QrCodeHome from './app/screens/QrCodeHome';
 
 
 
@@ -93,7 +94,13 @@ export default function App() {
           component={SetMapPin}
           options={{headerShown : false}}
         />
-        
+
+        {/*Qr code */}
+        <Stack.Screen
+          name='QrCodeHome'
+          component={QrCodeHome}
+          options={{headerShown : false}}
+        />
       </Stack.Navigator>
     </NavigationContainer>
 

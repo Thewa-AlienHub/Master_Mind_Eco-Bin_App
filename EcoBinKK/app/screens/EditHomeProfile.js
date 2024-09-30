@@ -5,7 +5,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
 
 function EditHomeProfile({ route, navigation }) {
-  const { email } = route.params;
+  const { docId } = route.params;
   const { width } = useWindowDimensions();
   const isMobile = width < 600;
 
@@ -23,7 +23,7 @@ function EditHomeProfile({ route, navigation }) {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const docRef = doc(DB, "tenants", email);
+        const docRef = doc(DB, "tenants", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -38,7 +38,7 @@ function EditHomeProfile({ route, navigation }) {
       }
     };
     fetchHomeData();
-  }, [email]);
+  }, [docId]);
 
   const handleInputChange = (field, value) => {
     setHomeData(prevState => ({
@@ -49,7 +49,7 @@ function EditHomeProfile({ route, navigation }) {
 
   const handleUpdate = async () => {
     try {
-      const docRef = doc(DB, "tenants", email);
+      const docRef = doc(DB, "tenants", docId);
       await updateDoc(docRef, homeData);
       alert('Data updated successfully!');
       navigation.goBack();

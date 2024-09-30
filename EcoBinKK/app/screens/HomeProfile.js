@@ -1,13 +1,18 @@
 import React from 'react';
 import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimensions,TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useCallback } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { DB } from '../config/DB_config';
 import colors from '../config/colors';
+import { useFocusEffect } from '@react-navigation/native';
+import MapView, { Marker, Polyline } from 'react-native-maps';
+
 
 function HomeProfile({ route, navigation }) {
     const { docId } = route.params;
+    console.log(route.params);
+    
     const { width, height } = useWindowDimensions();
     const isMobile = width < 600;
 
@@ -23,30 +28,32 @@ function HomeProfile({ route, navigation }) {
     const [combinedAddress, setCombinedAddress] = useState('');
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        console.log(docId);
-        const fetchHomeData = async () => {
-            try {
-            
-                const docRef = doc(DB, "tenants", docId);
-                const docSnap = await getDoc(docRef);
+    const fetchHomeData = useCallback(async () => {
+        try {
+            const docRef = doc(DB, "tenants", docId);
+            const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    setHomeData(data);
-                    // Create the combined address string
-                    setCombinedAddress(`${data.AD_Line1}\n${data.AD_Line2}\n${data.AD_Line3}\n${data.City}`);
-                } else {
-                    console.log('No file found');
-                }
-            } catch (error) {
-                console.log('Error fetching', error);
-            } finally {
-                setLoading(false);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setHomeData(data);
+                // Create the combined address string
+                setCombinedAddress(`${data.AD_Line1}\n${data.AD_Line2}\n${data.AD_Line3}\n${data.City}`);
+            } else {
+                console.log('No file found');
             }
-        };
-        fetchHomeData();
+        } catch (error) {
+            console.log('Error fetching', error);
+        } finally {
+            setLoading(false);
+        }
     }, [docId]);
+
+    useFocusEffect(
+        useCallback(() => {
+            setLoading(true); // Set loading to true before fetching data
+            fetchHomeData();
+        }, [fetchHomeData])
+    );
 
     const handleCombinedAddressChange = (text) => {
         // Split the combined text back into individual address lines and city
@@ -97,14 +104,28 @@ function HomeProfile({ route, navigation }) {
                             
                             <View style={styles.labelBackground}>
                             <View style={styles.LableContainer}>
-                                <Text style={styles.label}>Address:</Text>
+                                <Text style={styles.label}>Zip Code:</Text>
                                 <Text style={styles.labelData}>{homeData.ZipCode}</Text>
                             </View>
+                            </View>
+
+                            <View style={styles.mapContainer}>
+                                <MapView
+                                    style={styles.map}
+                                    initialRegion={{
+                                    latitude: 6.878417,
+                                    longitude: 79.918944,
+                                    latitudeDelta: 0.0922,
+                                    longitudeDelta: 0.0421,
+                                    }} // Capture map taps
+                                >
+                                    
+                                </MapView>
                             </View>
                             
                         
                             <View style={styles.editButtonContainer}>
-                            <TouchableOpacity style={styles.editButton} onPress={()=>navigation.navigate('editHomeProfile')}> 
+                            <TouchableOpacity style={styles.editButton} onPress={()=>navigation.navigate('editHomeProfile',{docId:docId})}> 
                                 <Text style={styles.buttonText}>Edit details</Text>
                             </TouchableOpacity>
                             </View>
@@ -235,6 +256,17 @@ const styles = StyleSheet.create({
         padding: 10,  // Adjust padding as needed
         alignItems: 'center',
         justifyContent: 'center',
+      },
+      mapContainer:{
+        borderWidth:2,
+        marginTop:30,
+        height:200,
+        elevation:20,
+      },
+      map: {
+        
+        width: '100%',
+        height: '100%',
       },
 });
 

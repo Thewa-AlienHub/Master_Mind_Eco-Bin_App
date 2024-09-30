@@ -108,6 +108,12 @@ const navigationView = () => (
             <Text style={styles.iconText}>Add Tenant</Text>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('tenantsList',{email:email})}>
+          <View style={styles.iconTextRow}>
+            <Icon name="cash-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+            <Text style={styles.iconText}>Your Tenants</Text>
+          </View>
+        </TouchableOpacity>
 
       </TouchableOpacity>
     </View>
