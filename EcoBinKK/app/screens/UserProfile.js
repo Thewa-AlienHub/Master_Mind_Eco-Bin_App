@@ -204,7 +204,6 @@ TopBar: {
     fontSize:32,
     color: colors.white,
     fontWeight:'bold',
-    fontFamily: 'Arial',
     left:'15%'
 },
 title: {
@@ -212,7 +211,6 @@ title: {
     top: '100%',
     left:'75%',
     fontSize: 29,
-    fontFamily: 'Arial',
     fontWeight: 'bold',
     color: 'black',
   },

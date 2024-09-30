@@ -18,7 +18,7 @@ function AddHome({navigation,route}) {
     const [zipCode,setZipCode] = useState(null);
 
     const [loading,setLoading] = useState(false);
-
+    const [isLocationSet, setIsLocationSet] = useState(false);
     const{width} = useWindowDimensions();
     const isMobile = width <600;
 
@@ -52,6 +52,15 @@ function AddHome({navigation,route}) {
             console.error("Error writing document: ", error);
         });
     }
+
+    const navChoose = () => {
+        const docId = `${email}_${nickName}`;
+        navigation.navigate('SetMapPin', {
+          ID: docId + '_home',
+          onLocationChosen: () => setIsLocationSet(true), // Set location chosen state
+        });
+      };
+    
     
 
     return (
@@ -115,8 +124,17 @@ function AddHome({navigation,route}) {
                             placeholder="Address Line 3"
                         />
                         <View style={styles.ButtonContainer}>
-                            <TouchableOpacity style={styles.buttonMap} onPress={()=>navigation.navigate('SetMapPin')}>
+                            <TouchableOpacity style={styles.buttonMap} onPress={navChoose}>
+                            
+                            {isLocationSet ? (
+                                <View>
+
+                                    <Text style={styles.buttonText}>Done</Text>
+                                    <Icon name="checkmark-circle" size={24} color="green" style={styles.iconRight} />
+                                </View>
+                            ):(
                                 <Text style={styles.buttonText}>Set on map</Text>
+                            )}
                             </TouchableOpacity>
                         </View>
 
@@ -226,9 +244,14 @@ const styles = StyleSheet.create({
       borderRadius: 15,
   },
   buttonText: {
+    position:'absolute',
       color:colors.white,
       fontSize: 22,
       fontWeight:"bold",
+  },
+
+  iconRight: {
+    marginLeft: 80,
   },
   inputBox: {
       height: 50,

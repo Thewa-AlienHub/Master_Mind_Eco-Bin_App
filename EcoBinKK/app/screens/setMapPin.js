@@ -1,17 +1,27 @@
-import React, { useState, useRef,useEffect} from 'react';
+import React, { useState, useRef,useEffect,} from 'react';
 import { View, StyleSheet, Button, Alert, TouchableOpacity, Modal, Text, ActivityIndicator } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/Ionicons';
+import colors from '../config/colors';
+import { useWindowDimensions } from 'react-native';
+import { doc,setDoc } from 'firebase/firestore';
+import { DB } from '../config/DB_config';
 
 
-function SetMapPin() {
-  const [startPoint, setStartPoint] = useState(null);
+function SetMapPin({navigation,route}) {
+  const {ID} = route.params;
+
+  const [startPoint, setStartPoint] = useState(
+    {latitude: 6.878417,
+    longitude: 79.918944,});
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(true); // For modal visibility
   const [currentFlashIndex, setCurrentFlashIndex] = useState(0); // Track the current message
   const mapRef = useRef(null); // Ref for MapView
+
+  const {height, width} = useWindowDimensions();
 
   const openRouteServiceApiKey = '5b3ce3597851110001cf6248af33e9cb607c4f9c9bd4a25d8d2cb230';
 
@@ -59,6 +69,23 @@ function SetMapPin() {
       setModalVisible(false); // Close modal after the last message
     }
   };
+
+  const choose = () => {
+    setDoc(doc(DB, "registeredPins", ID), {
+      ID:ID,
+      longitude: startPoint.longitude,
+      latitude:startPoint.latitude,
+  }).then(() => {
+      setLoading(false);
+      console.log('Document successfully written!');
+      
+      navigation.goBack(); 
+  }).catch((error) => {
+      setLoading(false);
+      console.error("Error writing document: ", error);
+  });
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -122,9 +149,16 @@ function SetMapPin() {
           )}
         </TouchableOpacity>
       </View>
-      <View style={styles.buttonContainer}>
-        <Button title="Get Current Location" onPress={getCurrentLocation} />
-      </View>
+      <TouchableOpacity 
+        style={[
+          styles.button, 
+          { left: (width / 2) - 100 } 
+        ]} 
+        onPress={choose}
+      >
+        <Text style={styles.buttonText}>Choose</Text>
+      </TouchableOpacity>
+
     </View>
   );
 }
@@ -137,14 +171,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  buttonContainer: {
+  button: {
     position: 'absolute',
-    bottom: 20, // Distance from the bottom
-    left: 20, // Distance from the left
-    right: 20, // Distance from the right
-    backgroundColor: 'transparent', // Ensure the background is transparent
-    padding: 10, // Padding for better touch area
+    bottom: 20, 
+    width: 200,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#00CE5E',
+    borderRadius: 15,
   },
+  
+buttonText: {
+    color:colors.white,
+    fontSize: 22,
+    fontWeight:"bold",
+},
   buttonContainerCurrentLocator: {
     position: 'absolute',
     bottom: 100, // Distance from the bottom
