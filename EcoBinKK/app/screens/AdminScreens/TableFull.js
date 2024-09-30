@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet ,TouchableOpacity} from 'react-nativ
 import { collection, getDocs } from 'firebase/firestore';
 import { DB } from '../../config/DB_config'; // Make sure this path is correct
 
-function TableFull() {
+function TableFull({navigation}) {
     const [tenants, setTenants] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -41,6 +41,9 @@ function TableFull() {
         fetchTenants();
     }, []);
 
+
+    
+
     return (
         <ScrollView>
             <View style={styles.container}>
@@ -48,8 +51,8 @@ function TableFull() {
                     <Text>Loading...</Text>
                 ) : (
                     tenants.map((tenant) => (
-                        <TouchableOpacity>
-                        <View key={tenant.id} style={styles.tenantContainer}>
+                        <TouchableOpacity  key={tenant.id} onPress={() => navigation.navigate('EmailWiseTable', { email: tenant.email })}>
+                        <View style={styles.tenantContainer}>
                             <Text style={styles.email}>{tenant.email}</Text>
                         </View>
                         </TouchableOpacity>

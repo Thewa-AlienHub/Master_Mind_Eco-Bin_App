@@ -16,6 +16,7 @@ import MapScreen from './app/screens/MapScreen';
 import SetMapPin from './app/screens/setMapPin';
 import QrCodeHome from './app/screens/QrCodeHome';
 import TableFull from './app/screens/AdminScreens/TableFull';
+import EmailWiseTable from './app/screens/AdminScreens/EmailWiseTable';
 
 
 
@@ -106,6 +107,11 @@ export default function App() {
         <Stack.Screen
           name='TableFull'
           component={TableFull}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='EmailWiseTable'
+          component={EmailWiseTable}
           options={{headerShown : false}}
         />
       </Stack.Navigator>
