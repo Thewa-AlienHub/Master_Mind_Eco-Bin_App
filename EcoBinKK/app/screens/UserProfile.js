@@ -120,6 +120,12 @@ const navigationView = () => (
             <Text style={styles.iconText}>Admin Table</Text>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('DriverMap')}>
+          <View style={styles.iconTextRow}>
+            <Icon name="cash-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+            <Text style={styles.iconText}>Driver Map</Text>
+          </View>
+        </TouchableOpacity>
 
       </TouchableOpacity>
     </View>

@@ -17,6 +17,7 @@ import SetMapPin from './app/screens/setMapPin';
 import QrCodeHome from './app/screens/QrCodeHome';
 import TableFull from './app/screens/AdminScreens/TableFull';
 import EmailWiseTable from './app/screens/AdminScreens/EmailWiseTable';
+import DriverMap from './app/screens/AdminScreens/DriverMap';
 
 
 
@@ -112,6 +113,11 @@ export default function App() {
         <Stack.Screen
           name='EmailWiseTable'
           component={EmailWiseTable}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='DriverMap'
+          component={DriverMap}
           options={{headerShown : false}}
         />
       </Stack.Navigator>
