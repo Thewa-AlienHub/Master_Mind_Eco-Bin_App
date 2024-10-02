@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import axios from 'axios';
 import { collection, getDocs } from 'firebase/firestore';
@@ -10,8 +10,6 @@ function DriverMap() {
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [pins, setPins] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null); // State for current location
-
-
   const openRouteServiceApiKey = '5b3ce3597851110001cf6248af33e9cb607c4f9c9bd4a25d8d2cb230'; // Replace with your API key
 
   useEffect(() => {
@@ -25,7 +23,7 @@ function DriverMap() {
         }));
         setPins(pinsData);
 
-        if (pinsData.length >= 3) {
+        if (pinsData.length >= 2) {
           let combinedRoutes = [];
           for (let i = 0; i < pinsData.length - 1; i++) {
             const route = await fetchRouteData(pinsData[i], pinsData[i + 1]);
@@ -35,6 +33,7 @@ function DriverMap() {
         }
       } catch (error) {
         console.error('Error fetching pins:', error);
+        Alert.alert('Error', 'Failed to fetch pins. Please try again later.');
       }
     };
 
@@ -52,22 +51,29 @@ function DriverMap() {
       return routeCoords;
     } catch (error) {
       console.error('Error fetching route data:', error);
+      Alert.alert('Error', 'Failed to fetch route data. Please try again later.');
       return [];
     }
   };
 
   useEffect(() => {
     const getCurrentLocation = async () => {
-      // Request permission to access location
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        return;
-      }
+      try {
+        // Request permission to access location
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.error('Permission to access location was denied');
+          Alert.alert('Permission Denied', 'Location permission is required to use this feature.');
+          return;
+        }
 
-      // Get the current location
-      const location = await Location.getCurrentPositionAsync({});
-      setCurrentLocation(location.coords);
+        // Get the current location
+        const location = await Location.getCurrentPositionAsync({});
+        setCurrentLocation(location.coords);
+      } catch (error) {
+        console.error('Error getting current location:', error);
+        Alert.alert('Error', 'Unable to get current location. Please try again later.');
+      }
     };
 
     getCurrentLocation();
@@ -89,13 +95,15 @@ function DriverMap() {
         }}
       >
         {/* Render markers for specified pins */}
-        {pins.map(pin => (
-          <Marker
-            key={pin.id}
-            coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
-            title={pin.title}
-            description={pin.description}
-          />
+        {pins.length > 0 && pins.map(pin => (
+          pin.latitude && pin.longitude ? (
+            <Marker
+              key={pin.id}
+              coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
+              title={pin.title}
+              description={pin.description}
+            />
+          ) : null
         ))}
 
         {routeCoordinates.length > 0 && (
