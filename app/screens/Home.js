@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity ,Dimensions } from 'react-native';
 import MenuButton from '../Components/MenuButton'; // Import MenuButton
 import colors from '../Utils/colors';
 import NotificationBell from '../Components/NotificationBell';
+
+const { width, height } = Dimensions.get('window');
 
 const Home = ({ drawer }) => {
   const advertisements = [
@@ -73,7 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   advertismentContainer: {
-    height: 300,
+    height: height * 0.36,
     backgroundColor: colors.primary,
     marginHorizontal: 10,
     marginTop: 40,
@@ -81,8 +83,8 @@ const styles = StyleSheet.create({
   },
   advertismentBar: {
     backgroundColor: colors.white,
-    height: 185,
-    width: 310,
+    height: height*0.22,
+    width: width*0.88,
     borderRadius: 20,
     marginTop: 20,
     marginHorizontal: 15,
@@ -96,7 +98,7 @@ const styles = StyleSheet.create({
   homeTxt: {
     color: colors.white,
     fontSize: 40,
-    marginLeft: 120,
+    marginLeft: width*0.4,
     marginTop: 25,
     fontWeight: "bold",
   },
