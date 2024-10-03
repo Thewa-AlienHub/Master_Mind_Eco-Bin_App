@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
-import { database, ref, update, onValue } from "../firebaseConfig";
-import colors from "../assets/colors";
+import { database, ref, update, onValue } from "../../config/DB_config";
+import colors from "../../Utils/colors";
 
 const ReportViewScreen = () => {
   const route = useRoute();

@@ -9,12 +9,18 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { database, ref, onValue, query, orderByChild } from "../firebaseConfig";
+import {
+  database,
+  ref,
+  onValue,
+  query,
+  orderByChild,
+} from "../../config/DB_config";
 import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import { Platform } from "react-native";
 import { parse, compareDesc, isToday } from "date-fns";
-import colors from "../assets/colors";
+import colors from "../../Utils/colors";
 
 const ScanHistoryScreen = () => {
   const [selectedTab, setSelectedTab] = useState("Today");
@@ -90,118 +96,8 @@ const ScanHistoryScreen = () => {
     navigation.navigate("ReportView", { report: item });
   };
 
-  const handleDownload = async (item) => {
-    Alert.alert("Download", `Downloading report for ${item.name}`);
-    // You can implement a specific download logic here if needed
-  };
 
-  const handleDownloadAll = async () => {
-    try {
-      // Generate HTML content for the PDF
-      const htmlContent = `
-    <html>
-    <head>
-      <style>
-        table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #00CE5E;
-      color: white;
-    }
-    .status-pending {
-      color: red;
-    }
-    .status-complete {
-      color: green;
-    }
-  </style>
-</head>
-<body>
-  <h1>Scan History Report</h1>
-  <table>
-    <tr>
-      <th>Owner Name</th>
-      <th>House Address</th>
-      <th>Waste Type</th>
-      <th>Date</th>
-      <th>Review Status</th>
-    </tr>
-    ${filteredData
-      .map(
-        (item) => `
-        <tr>
-          <td>${item.ownerName}</td>
-          <td>${item.houseAddress}</td>
-          <td>${item.wasteType}</td>
-          <td>${item.dateAndTime}</td>
-          <td class="${
-            item.reviewStatus === "Pending review"
-              ? "status-pending"
-              : "status-complete"
-          }">
-            ${item.reviewStatus}
-          </td>
-        </tr>
-      `
-      )
-      .join("")}
-  </table>
-    </body>
-    </html>
-    `;
-
-      // Create PDF file from the HTML content
-      const { uri: pdfUri } = await Print.printToFileAsync({
-        html: htmlContent,
-        fileName: `RecycleHistoryReport.pdf`,
-        base64: false,
-      });
-
-      console.log("PDF file created at:", pdfUri); // Log PDF URI
-
-      // Save the file using StorageAccessFramework if on Android, or share it directly otherwise
-      if (Platform.OS === "android") {
-        const permissions =
-          await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-        if (permissions.granted) {
-          const base64 = await FileSystem.readAsStringAsync(pdfUri, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-          await FileSystem.StorageAccessFramework.createFileAsync(
-            permissions.directoryUri,
-            "RecycleHistoryReport.pdf",
-            "application/pdf"
-          )
-            .then(async (uri) => {
-              await FileSystem.writeAsStringAsync(uri, base64, {
-                encoding: FileSystem.EncodingType.Base64,
-              });
-              Alert.alert("Success", "PDF saved successfully.");
-            })
-            .catch((error) => {
-              console.error("Error saving PDF:", error);
-              Alert.alert("Error", "Failed to save the PDF.");
-            });
-        } else {
-          console.log("Permissions denied. Sharing PDF...");
-          shareAsync(pdfUri);
-        }
-      } else {
-        // For iOS, just share the PDF
-        shareAsync(pdfUri);
-      }
-    } catch (error) {
-      console.error("Error creating or sharing PDF:", error);
-      Alert.alert("Error", "Failed to download the PDF. Please try again.");
-    }
-  };
+  
 
   const renderItem = ({ item }) => {
     // Determine the color for review status
@@ -211,7 +107,7 @@ const ScanHistoryScreen = () => {
     return (
       <View style={styles.listItem}>
         <Image
-          source={require("../assets/images/file-icon.png")}
+          source={require("../../assets/file-icon.png")}
           style={styles.fileIcon}
         />
         <View style={styles.itemTextContainer}>
@@ -228,7 +124,7 @@ const ScanHistoryScreen = () => {
         <View style={styles.actionIcons}>
           <TouchableOpacity onPress={() => handleViewReport(item)}>
             <Image
-              source={require("../assets/images/view-icon.png")}
+              source={require("../../assets/view-icon.png")}
               style={styles.actionIcon}
             />
           </TouchableOpacity>
@@ -248,7 +144,7 @@ const ScanHistoryScreen = () => {
       {/* Back Button */}
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
         <Image
-          source={require("../assets/images/back-btn.png")}
+          source={require("../../assets/back-btn.png")}
           style={styles.backIcon}
         />
       </TouchableOpacity>

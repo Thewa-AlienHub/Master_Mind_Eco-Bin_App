@@ -2,8 +2,8 @@ import React, { useState, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera"; // Import Camera from Expo
-import colors from "../assets/colors";
-import MenuButton from "./Components/MenuButton";
+import colors from "../../Utils/colors";
+import MenuButton from "../../Components/MenuButton";
 
 const QRCodeScannerScreen = ({ drawer }) => {
   const navigation = useNavigation();
@@ -22,7 +22,7 @@ const QRCodeScannerScreen = ({ drawer }) => {
 
   const handleSubmit = async () => {
     try {
-      navigation.navigate("Index");
+      navigation.navigate("RecycleForm");
     } catch (error) {
       console.error("Error Scanning code: ", error);
     }
@@ -38,14 +38,10 @@ const QRCodeScannerScreen = ({ drawer }) => {
 
   return (
     <View style={styles.container}>
-      <MenuButton
-        color={colors.primary}
-        onPress={() => drawer.current.openDrawer()}
-      />
       {/* Button with PNG Icon to navigate to Scan History */}
       <TouchableOpacity style={styles.historyButton} onPress={handleHistory}>
         <Image
-          source={require("../assets/images/history-icon.png")}
+          source={require("../../assets/history-icon.png")}
           style={styles.historyIcon}
         />
       </TouchableOpacity>
@@ -66,7 +62,7 @@ const QRCodeScannerScreen = ({ drawer }) => {
             {/* The overlay to show the QR scanning area */}
             <View style={styles.qrScannerOverlay}>
               <Image
-                source={require("../assets/images/qr-code.png")}
+                source={require("../../assets/qr-code.png")}
                 style={styles.qrImage}
               />
             </View>
@@ -74,7 +70,7 @@ const QRCodeScannerScreen = ({ drawer }) => {
         ) : (
           <View style={styles.qrPlaceholder}>
             <Image
-              source={require("../assets/images/qr-code.png")}
+              source={require("../../assets/qr-code.png")}
               style={styles.qrImage}
             />
           </View>

@@ -13,9 +13,9 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { database, ref, push } from "../firebaseConfig";
+import { database, ref, push } from "../../config/DB_config";
 import RNPickerSelect from "react-native-picker-select";
-import colors from "../assets/colors";
+import colors from "../../Utils/colors";
 
 const Index = () => {
   const [houseAddress, setHouseAddress] = useState("");

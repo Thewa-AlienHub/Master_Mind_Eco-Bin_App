@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import colors from "../assets/colors";
+import colors from "../../Utils/colors";
 
 const SuccessScreen = () => {
   const navigation = useNavigation();
@@ -19,14 +19,14 @@ const SuccessScreen = () => {
       {/* Back Button */}
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
         <Image
-          source={require("../assets/images/back-btn.png")}
+          source={require("../../assets/back-btn.png")}
           style={styles.backIcon}
         />
       </TouchableOpacity>
 
       {/* Robot and Garbage Bin Image */}
       <Image
-        source={require("../assets/images/binLogo.png")}
+        source={require("../../assets/binLogo.png")}
         style={styles.robotImage}
       />
 

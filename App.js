@@ -1,7 +1,5 @@
-
-
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
 import Login from "./app/screens/Login";
 import SignUp from "./app/screens/SignUp";
@@ -16,25 +14,22 @@ import RecycleForm from "./app/screens/Pradi/RecycleForm_04";
 const Stack = createStackNavigator();
 
 export default function App() {
-
   return (
-
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Login'>
-
-      <Stack.Screen
-          name='Login'
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen
+          name="Login"
           component={Login}
-          options={{headerShown : false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
-          name='Signup'
+          name="Signup"
           component={SignUp}
-          options={{headerShown : false}}
+          options={{ headerShown: false }}
         />
-     
-     <Stack.Screen
-          name='MainBar'
+
+        <Stack.Screen
+          name="MainBar"
           component={MainBar}
           options={{ headerShown: false }}
         />
@@ -50,7 +45,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="QRCodeScannerScreen"
+          name="QRScan"
           component={QRCodeScannerScreen}
           options={{ headerShown: false }}
         />
@@ -71,9 +66,5 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
-
   );
 }
-
-
-
