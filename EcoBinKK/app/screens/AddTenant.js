@@ -37,21 +37,7 @@ function AddTenant({navigation,route}) {
             </View>
 
 
-            <View style={isMobileView ? styles.cardBody :styles_web.cardBody}>
-                <TouchableOpacity onPress={()=>navigation.navigate('addResident')}>
-                    <View>
-                        <Image source={require('../assets/resident.png')}
-                                        style = {isMobileView ? styles.resident :styles_web.resident}/>
-                    </View>
-
-                    <View style={isMobileView ? styles.textBoxInCard :styles_web.cardText}>
-                        <Text style={{fontSize:isMobileView ? 30 : 40}}>Add Resident</Text>
-                        <Text></Text>
-                        <Text style={{fontSize:isMobileView ? 15 : 20}}>Add Resident to the system</Text>
-                        <Text style={{fontSize:isMobileView ? 15 : 20}}>and generate a QR code</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
+            
 
             <View style={isMobileView ? styles.cardBody :styles_web.cardBody}>
                 <TouchableOpacity onPress={()=>navigation.navigate('addEvent')}>
@@ -91,7 +77,7 @@ function AddTenant({navigation,route}) {
                 </TouchableOpacity>
 
 
-                <TouchableOpacity onPress={()=>navigation.navigate('addResident')}>
+                <TouchableOpacity onPress={()=>navigation.navigate('addResident',{email: email})}>
                     <View style={styles.cardBody}>
                             <View style = {styles.textBoxInCard}>
                                 <Text style={{fontSize:30}}>Add Resident</Text>
@@ -106,7 +92,7 @@ function AddTenant({navigation,route}) {
                     </View>
                 </TouchableOpacity>
                     
-                <TouchableOpacity onPress={()=>navigation.navigate('addEvent')}>
+                <TouchableOpacity onPress={()=>navigation.navigate('addEvent',{email: email})}>
                     <View style={styles.cardBody}>
                             <View style = {styles.textBoxInCard}>
                                 <Text style={{fontSize:30}}>Add Event</Text>

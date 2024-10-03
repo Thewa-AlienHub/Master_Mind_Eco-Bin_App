@@ -19,6 +19,7 @@ import TableFull from './app/screens/AdminScreens/FullTable';
 import EmailWiseTable from './app/screens/AdminScreens/EmailWiseTable';
 import DriverMap from './app/screens/AdminScreens/DriverMap';
 import HomeDataAdmin from './app/screens/AdminScreens/HomeDataAdmin';
+import DoneScreen from './app/screens/DoneScreen';
 
 
 
@@ -84,6 +85,11 @@ export default function App() {
         <Stack.Screen
           name='tenantsList'
           component={TenantsList}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='DoneScreen'
+          component={DoneScreen}
           options={{headerShown : false}}
         />
 

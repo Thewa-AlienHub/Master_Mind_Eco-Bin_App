@@ -56,6 +56,7 @@ function AddHome({ navigation, route }) {
             City: city,
             NickName: nickName,
             ZipCode: zipCode,
+            type:'Home'
         }).then(() => {
             setLoading(false);
             console.log('Document successfully written!');

@@ -68,7 +68,7 @@ function TenantsList({ navigation, route }) {
                         >
                             <View style={styles.cardBody}>
                                 <View style={styles.textBoxInCard}>
-                                    <Text style={styles.cardText}>Name: {tenant.NickName}</Text>
+                                    <Text style={styles.cardText}>Name: {tenant.NickName} Type: {tenant.type}</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
