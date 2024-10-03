@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image ,Dimensions } from 'react-native';
 import MenuButton from '../Components/MenuButton';
 import NotificationBell from '../Components/NotificationBell';
 import colors from '../Utils/colors';
@@ -7,6 +7,9 @@ import { storage } from '../config/DB_config'; // Assuming this imports Firebase
 import { getDownloadURL, ref } from 'firebase/storage'; // Make sure to import these methods
 import Icon from 'react-native-vector-icons/Ionicons';
 import { ScrollView } from 'react-native';
+
+
+const { width, height } = Dimensions.get('window');
 
 const Profile = ({ drawer, data }) => {
   const [profileImageUrl, setProfileImageUrl] = useState('');
@@ -106,7 +109,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: colors.primary,
-    height: 230,
+    height: height * 0.28,
     padding: 10,
   },
   iconContainer: {
@@ -119,8 +122,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor:colors.lprimary,
     alignItems: 'center',
-    height: 50,
-    width: 200,
+    height: height * 0.06,
+    width: width * 0.6,
     borderTopLeftRadius: 20,
     marginTop: 20,
     marginLeft: 70
@@ -142,7 +145,7 @@ const styles = StyleSheet.create({
   },
   detailTab: {
     backgroundColor: colors.dark,
-    height: 50,
+    height: height * 0.05,
     justifyContent: 'center',
     paddingHorizontal: 20,
     marginBottom: 10,
@@ -155,18 +158,19 @@ const styles = StyleSheet.create({
   detailTextNameContainer:{
     marginLeft: 30,
     marginTop: -70,
-    width: 190,
+    width: width * 0.5,
     marginBottom: 30,
+    
 
   },
   profileContainer: {
     alignItems: 'center',
-    marginTop: -50,
+    marginTop: -40,
     marginLeft: 200,
   },
   profileImage: {
-    width: 120,
-    height: 120,
+    width: width * 0.3,
+    height: height * 0.15,
     borderRadius: 75,
   },
   editIconContainer: {
@@ -178,8 +182,8 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   editIcon: {
-    width: 20,
-    height: 20,
+    width: width * 0.1,
+    height: height * 0.05,
   },
   detailsCard: {
     backgroundColor: colors.white,
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-start',
     borderRadius: 10,
-    width: 300,
+    width: width * 0.8,
     paddingLeft: 20,
   },
   detailTextName:{
