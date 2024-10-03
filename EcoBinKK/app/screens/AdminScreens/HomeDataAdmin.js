@@ -1,21 +1,21 @@
 import React from 'react';
-import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimensions,TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimensions,TouchableOpacity, TextInput, ScrollView,Alert } from 'react-native';
 import { useState, useEffect,useCallback } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { DB } from '../config/DB_config';
-import colors from '../config/colors';
+import { DB } from '../../config/DB_config';
+import colors from '../../config/colors';
 import { useFocusEffect } from '@react-navigation/native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
-import MenuButton from '../Components/MenuButton';
-import NotificationBell from '../Components/NotificationBell';
+import MenuButton from '../../Components/MenuButton';
+import NotificationBell from '../../Components/NotificationBell';
 
 
 
 
-function HomeProfile({ route, navigation,drawer }) {
+function HomeDataAdmin({ route, navigation,drawer }) {
     const { docId } = route.params;
-    console.log(route.params);
+    console.log(docId);
     
     const { width, height } = useWindowDimensions();
     const isMobile = width < 600;
@@ -48,6 +48,8 @@ function HomeProfile({ route, navigation,drawer }) {
                 const data = docSnap.data();
                 setHomeData(data);
                 console.log('home data set');
+                console.log(data);
+                
                 
                 setCombinedAddress(`${data.Ad_Line1}\n${data.Ad_Line2}\n${data.Ad_Line3}\n${data.City}`);
             } else {
@@ -78,6 +80,18 @@ function HomeProfile({ route, navigation,drawer }) {
         }
     }
 
+    const handleDelete = async () => {
+      try {
+          await deleteDoc(doc(DB, "tenants", docId)); // Delete the document
+          await deleteDoc(doc(DB, "registeredPins", docId)); // Optionally delete related pins
+          Alert.alert('Success', 'Data has been deleted successfully.');
+          navigation.goBack();  // Go back to the previous screen
+      } catch (error) {
+          console.log('Error deleting data:', error);
+          Alert.alert('Error', 'There was an error deleting the data.');
+      }
+  };
+
     useFocusEffect(
         useCallback(() => {
             setLoading(true); 
@@ -93,8 +107,7 @@ function HomeProfile({ route, navigation,drawer }) {
         <View style={styles.mainContainer}>
           <View style={styles.headerContainer}>
             <View style={styles.iconContainer}>
-              <MenuButton color={colors.white} onPress={() => drawer.current.openDrawer()} />
-              <NotificationBell color={colors.white} onPress={() => drawer.current.openDrawer()} />
+            <Icon name="arrow-back" size={34} color="white" />
               <View style={styles.logoContainer}>
                 <Text style={styles.logotext}>Eco Bin</Text>
               </View>
@@ -116,7 +129,7 @@ function HomeProfile({ route, navigation,drawer }) {
           <View style={styles.detailsCard}>
             <View style={styles.detailTextContainer}>
             <Text style={styles.label}>Address: </Text>
-            <Text style={styles.detailText}>{combinedAddress || "SasinduPraveen705@gmail.com"}</Text>
+            <Text style={styles.detailText}>{combinedAddress }</Text>
             </View>
     
             <View style={styles.detailTextContainer}>
@@ -161,8 +174,8 @@ function HomeProfile({ route, navigation,drawer }) {
           </View>
     
            {/* Edit Profile Button */}
-           <TouchableOpacity style={styles.editButton} onPress={()=>navigation.navigate('editHomeProfile',{docId:docId})}>
-            <Text style={styles.editButtonText}>Edit Profile</Text>
+           <TouchableOpacity style={styles.editButton} onPress={handleDelete}>
+            <Text style={styles.editButtonText}>Delete</Text>
           </TouchableOpacity>
     
           </ScrollView>
@@ -321,4 +334,4 @@ function HomeProfile({ route, navigation,drawer }) {
       },
     });
     
-export default HomeProfile;
+export default HomeDataAdmin;

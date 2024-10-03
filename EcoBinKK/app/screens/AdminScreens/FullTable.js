@@ -6,6 +6,9 @@ import { DB } from '../../config/DB_config'; // Make sure this path is correct
 function TableFull({navigation}) {
     const [tenants, setTenants] = useState([]);
     const [loading, setLoading] = useState(true);
+    console.log('full table');
+    
+    
 
     useEffect(() => {
         const fetchTenants = async () => {
@@ -19,7 +22,6 @@ function TableFull({navigation}) {
 
                 querySnapshot.forEach((doc) => {
                     const [email] = doc.id.split('_'); // Extract the email part before '_'
-                    
                     if (!emailSet.has(email)) {
                         emailSet.add(email); // Add email to the Set
                         uniqueTenants.push({

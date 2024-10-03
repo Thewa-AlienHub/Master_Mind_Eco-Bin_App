@@ -15,9 +15,10 @@ import TenantsList from './app/screens/TenantsList';
 import MapScreen from './app/screens/MapScreen';
 import SetMapPin from './app/screens/setMapPin';
 import QrCodeHome from './app/screens/QrCodeHome';
-import TableFull from './app/screens/AdminScreens/TableFull';
+import TableFull from './app/screens/AdminScreens/FullTable';
 import EmailWiseTable from './app/screens/AdminScreens/EmailWiseTable';
 import DriverMap from './app/screens/AdminScreens/DriverMap';
+import HomeDataAdmin from './app/screens/AdminScreens/HomeDataAdmin';
 
 
 
@@ -118,6 +119,11 @@ export default function App() {
         <Stack.Screen
           name='DriverMap'
           component={DriverMap}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='HomeDataAdmin'
+          component={HomeDataAdmin}
           options={{headerShown : false}}
         />
       </Stack.Navigator>

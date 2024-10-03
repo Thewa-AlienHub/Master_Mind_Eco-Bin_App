@@ -12,9 +12,9 @@ function EditHomeProfile({ route, navigation }) {
   const [isLocationSet, setIsLocationSet] = useState(false);
   const [homeData, setHomeData] = useState({
     NickName: '',
-    AD_Line1: '',
-    AD_Line2: '',
-    AD_Line3: '',
+    Ad_Line1: '',
+    Ad_Line2: '',
+    Ad_Line3: '',
     City: '',
     ZipCode: '',
   });
@@ -98,7 +98,7 @@ function EditHomeProfile({ route, navigation }) {
                 <View style={styles.addressLabelContainer}>
                   <Text style={{ fontSize: 30 }}>Address</Text>
 
-                  {['AD_Line1', 'AD_Line2', 'AD_Line3', 'City', 'ZipCode'].map((field, idx) => (
+                  {['Ad_Line1', 'Ad_Line2', 'Ad_Line3', 'City', 'ZipCode'].map((field, idx) => (
                     <View key={idx}>
                       <View style={styles.LableContainer}>
                         <Text style={styles.label}>{field.replace('_', ' ')} :</Text>
@@ -147,7 +147,6 @@ const styles = StyleSheet.create({
   },
   scrollViewContainer: {
     flexGrow: 1,
-    paddingBottom: 50,
   },
   TopBarContainer: {
     width: '100%',

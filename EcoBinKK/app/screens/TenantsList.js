@@ -49,7 +49,7 @@ function TenantsList({ navigation, route }) {
     return (
 
         <View style={styles.container}>
-            <ScrollView>
+            <ScrollView style={{height:height-150}}>
             <View style={styles.TopBarContainer}>
                 <View style={styles.backButton}>
                     <Button title='back' onPress={() => navigation.goBack()} />
