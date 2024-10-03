@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert,TouchableOpacity, useWindowDimensions,Text } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import axios from 'axios';
 import { collection, getDocs } from 'firebase/firestore';
@@ -11,6 +11,8 @@ function DriverMap() {
   const [pins, setPins] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null); // State for current location
   const openRouteServiceApiKey = '5b3ce3597851110001cf6248af33e9cb607c4f9c9bd4a25d8d2cb230'; // Replace with your API key
+
+  const {height, width} = useWindowDimensions();
 
   useEffect(() => {
     const fetchPins = async () => {
@@ -83,6 +85,49 @@ function DriverMap() {
     return () => clearInterval(locationInterval); // Clear the interval on unmount
   }, []);
 
+
+  const moveMarkerToPins = (startCoordinates, endCoordinates) => {
+    let markerPosition = { ...startCoordinates }; // Start at the initial position
+    const moveStep = 0.0001; // Define how much to move the marker in each step
+    const moveInterval = 16; // Approximate time for each frame (~60 FPS)
+  
+    const moveMarker = () => {
+      const distanceX = endCoordinates.longitude - markerPosition.longitude;
+      const distanceY = endCoordinates.latitude - markerPosition.latitude;
+  
+      // Check if the marker has reached the end coordinates
+      if (Math.abs(distanceX) < moveStep && Math.abs(distanceY) < moveStep) {
+        // Snap to the end position
+        markerPosition = { ...endCoordinates };
+        console.log("Marker has reached the destination:", markerPosition);
+        return; // Exit the function
+      }
+  
+      // Update marker position
+      if (Math.abs(distanceX) > moveStep) {
+        markerPosition.longitude += distanceX > 0 ? moveStep : -moveStep; // Move in the X direction
+      }
+      if (Math.abs(distanceY) > moveStep) {
+        markerPosition.latitude += distanceY > 0 ? moveStep : -moveStep; // Move in the Y direction
+      }
+  
+      // Update the marker position in the state (if using in a React component)
+      console.log("Current Marker Position:", markerPosition);
+      
+      // Request the next frame
+      setTimeout(moveMarker, moveInterval);
+    };
+  
+    // Start the movement
+    moveMarker();
+  };
+
+
+  const move = () =>{
+    console.log('moving marker'+pins[0],pins[3]);
+    
+    moveMarkerToPins(pins[0],pins[3])
+  }
   return (
     <View style={styles.container}>
       <MapView
@@ -127,6 +172,16 @@ function DriverMap() {
           </Marker>
         )}
       </MapView>
+
+      <TouchableOpacity 
+        style={[
+          styles.button, 
+          { left: (width / 2) - 100 } 
+        ]} 
+        onPress={move}
+      >
+        <Text style={styles.buttonText}>Choose</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -157,6 +212,16 @@ const styles = StyleSheet.create({
     borderRightColor: 'transparent',
     borderBottomColor: 'blue',
     transform: [{ rotate: '180deg' }], // Point the arrow upwards
+  },
+  button: {
+    position: 'absolute',
+    bottom: 20, 
+    width: 200,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#00CE5E',
+    borderRadius: 15,
   },
 });
 

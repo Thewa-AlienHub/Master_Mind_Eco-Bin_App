@@ -1,44 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import axios from 'axios';
 import { collection, getDocs } from 'firebase/firestore';
-import { DB } from '../../config/DB_config'; // Adjust the import to your Firestore config
+import { DB } from '../../config/DB_config';
+import * as Location from 'expo-location'; // Import expo-location
 
 function DriverMap() {
   const [routeCoordinates, setRouteCoordinates] = useState([]);
-  const [pins, setPins] = useState([]); // State to hold pin data
+  const [pins, setPins] = useState([]);
+  const [currentLocation, setCurrentLocation] = useState(null); // State for current location
+  const openRouteServiceApiKey = '5b3ce3597851110001cf6248af33e9cb607c4f9c9bd4a25d8d2cb230'; // Replace with your API key
 
-  const openRouteServiceApiKey = '5b3ce3597851110001cf6248af33e9cb607c4f9c9bd4a25d8d2cb230'; 
-  
   useEffect(() => {
     const fetchPins = async () => {
       try {
-        const pinsCollection = collection(DB, 'registeredPins'); // Firestore collection
+        const pinsCollection = collection(DB, 'registeredPins');
         const pinsSnapshot = await getDocs(pinsCollection);
         const pinsData = pinsSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setPins(pinsData); // Store the pins in state
+        setPins(pinsData);
 
-        // Ensure pins array has at least 2 elements (for consecutive pairs)
         if (pinsData.length >= 2) {
-          let allRouteCoords = [];
-
-          // Loop through the pins and fetch route data for each consecutive pair of pins
+          let combinedRoutes = [];
           for (let i = 0; i < pinsData.length - 1; i++) {
-            const start = pinsData[i];
-            const end = pinsData[i + 1];
-
-            const routeCoords = await fetchRouteData(start, end);
-            allRouteCoords = [...allRouteCoords, ...routeCoords]; // Combine route coordinates
+            const route = await fetchRouteData(pinsData[i], pinsData[i + 1]);
+            combinedRoutes = [...combinedRoutes, ...route];
           }
-
-          setRouteCoordinates(allRouteCoords); // Set combined route coordinates
+          setRouteCoordinates(combinedRoutes);
         }
       } catch (error) {
         console.error('Error fetching pins:', error);
+        Alert.alert('Error', 'Failed to fetch pins. Please try again later.');
       }
     };
 
@@ -52,52 +47,84 @@ function DriverMap() {
     try {
       const response = await axios.get(url);
       const coordinates = response.data.features[0].geometry.coordinates;
-
-      // Convert coordinates from [longitude, latitude] to [latitude, longitude] format
-      const routeCoords = coordinates.map(([longitude, latitude]) => ({
-        latitude,
-        longitude,
-      }));
-
-      return routeCoords; // Return route coordinates
+      const routeCoords = coordinates.map(([longitude, latitude]) => ({ latitude, longitude }));
+      return routeCoords;
     } catch (error) {
       console.error('Error fetching route data:', error);
-      return []; // Return an empty array in case of an error
+      Alert.alert('Error', 'Failed to fetch route data. Please try again later.');
+      return [];
     }
   };
+
+  useEffect(() => {
+    const getCurrentLocation = async () => {
+      try {
+        // Request permission to access location
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.error('Permission to access location was denied');
+          Alert.alert('Permission Denied', 'Location permission is required to use this feature.');
+          return;
+        }
+
+        // Get the current location
+        const location = await Location.getCurrentPositionAsync({});
+        setCurrentLocation(location.coords);
+      } catch (error) {
+        console.error('Error getting current location:', error);
+        Alert.alert('Error', 'Unable to get current location. Please try again later.');
+      }
+    };
+
+    getCurrentLocation();
+
+    // Update location every 5 seconds
+    const locationInterval = setInterval(getCurrentLocation, 5000);
+    return () => clearInterval(locationInterval); // Clear the interval on unmount
+  }, []);
 
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 6.880000, // Set a central point for the map
+          latitude: 6.880000,
           longitude: 79.923000,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
       >
-        {/* Render markers only if pins data is available */}
-        {pins.length >= 2 && (
-          pins.map((pin, index) => (
+        {/* Render markers for specified pins */}
+        {pins.length > 0 && pins.map(pin => (
+          pin.latitude && pin.longitude ? (
             <Marker
               key={pin.id}
-              coordinate={{
-                latitude: pin.latitude,
-                longitude: pin.longitude,
-              }}
+              coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
               title={pin.title}
               description={pin.description}
             />
-          ))
-        )}
+          ) : null
+        ))}
 
         {routeCoordinates.length > 0 && (
           <Polyline
-            coordinates={routeCoordinates} // Combined route data from API
-            strokeColor="#000" // Black color for the route line
-            strokeWidth={6} // Width of the route line
+            coordinates={routeCoordinates}
+            strokeColor="#000"
+            strokeWidth={6}
           />
+        )}
+
+        {/* Render current location marker */}
+        {currentLocation && (
+          <Marker
+            coordinate={currentLocation}
+            title="You Are Here"
+            pinColor="blue" // Change color to distinguish from other markers
+          >
+            <View style={styles.arrowContainer}>
+              <View style={styles.arrow} />
+            </View>
+          </Marker>
         )}
       </MapView>
     </View>
@@ -113,6 +140,23 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  arrowContainer: {
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderBottomWidth: 20,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'blue',
+    transform: [{ rotate: '180deg' }], // Point the arrow upwards
   },
 });
 
