@@ -15,7 +15,6 @@ import NotificationBell from '../Components/NotificationBell';
 
 function HomeProfile({ route, navigation,drawer }) {
     const { docId } = route.params;
-    console.log(route.params);
     
     const { width, height } = useWindowDimensions();
     const isMobile = width < 600;
@@ -27,6 +26,7 @@ function HomeProfile({ route, navigation,drawer }) {
         Ad_Line3: '',
         City: '',
         ZipCode: '',
+        date:''
     });
 
     const [combinedAddress, setCombinedAddress] = useState('');
@@ -46,7 +46,10 @@ function HomeProfile({ route, navigation,drawer }) {
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                setHomeData(data);
+                setHomeData({
+                  ...data,
+                  date: data.date ? data.date.toDate() : null, // Convert Firestore Timestamp to JS Date
+              });
                 console.log('home data set');
                 
                 setCombinedAddress(`${data.Ad_Line1}\n${data.Ad_Line2}\n${data.Ad_Line3}\n${data.City}`);
@@ -123,6 +126,13 @@ function HomeProfile({ route, navigation,drawer }) {
             <Text style={styles.label}>Zip Code: </Text>
             <Text style={styles.detailText}>{homeData.ZipCode || "Unknown"}</Text>
             </View>
+            {homeData.type === 'Event' && (
+                <View style={styles.detailTextContainer}>
+                    <Text style={styles.label}>Date: </Text>
+                    <Text style={styles.detailText}>{homeData.date ? homeData.date.toLocaleString() : "Unknown"}</Text>
+                </View>
+            )}
+
     
             <View style={styles.mapContainer}>
     {point.latitude !== 0 && point.longitude !== 0 ? (

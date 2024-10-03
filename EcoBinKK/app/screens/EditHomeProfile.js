@@ -4,6 +4,7 @@ import colors from '../config/colors';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { DB } from '../config/DB_config';
 import Icon from 'react-native-vector-icons/Ionicons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 function EditHomeProfile({ route, navigation }) {
   const { docId } = route.params;
@@ -17,8 +18,10 @@ function EditHomeProfile({ route, navigation }) {
     Ad_Line3: '',
     City: '',
     ZipCode: '',
+    date: new Date(), // Initialize date
   });
-
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,9 +29,19 @@ function EditHomeProfile({ route, navigation }) {
       try {
         const docRef = doc(DB, "tenants", docId);
         const docSnap = await getDoc(docRef);
-
+  
         if (docSnap.exists()) {
-          setHomeData(docSnap.data());
+          const data = docSnap.data();
+  
+          // Check if the date exists before trying to access it
+          const fetchedDate = data.date 
+            ? (data.date instanceof Date ? data.date : new Date(data.date.seconds * 1000)) 
+            : new Date(); // Default to the current date if no date is found
+  
+          setHomeData({
+            ...data,
+            date: fetchedDate, // Ensure it's a Date object
+          });
         } else {
           console.log('No file found');
         }
@@ -40,6 +53,7 @@ function EditHomeProfile({ route, navigation }) {
     };
     fetchHomeData();
   }, [docId]);
+  
 
   const handleInputChange = (field, value) => {
     setHomeData(prevState => ({
@@ -65,7 +79,30 @@ function EditHomeProfile({ route, navigation }) {
         ID: docId,
         onLocationChosen: () => setIsLocationSet(true),
     });
-};
+  };
+
+  const onDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || homeData.date;
+    setShowDatePicker(false); // Close the picker after selecting
+    setHomeData(prevState => ({
+      ...prevState,
+      date: currentDate
+    }));
+  };
+
+  const onTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || homeData.date;
+
+    // If a time is selected, we want to combine the existing date with the new time
+    const newDate = new Date(homeData.date); // Create a copy of the existing date
+    newDate.setHours(currentTime.getHours(), currentTime.getMinutes(), 0, 0); // Set new time
+
+    setShowTimePicker(false); // Close the picker after selecting
+    setHomeData(prevState => ({
+      ...prevState,
+      date: newDate // Update with the new date and time
+    }));
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -112,24 +149,57 @@ function EditHomeProfile({ route, navigation }) {
                     </View>
                   ))}
                 </View>
-                      <View style={styles.ButtonContainer}>
-                                        <TouchableOpacity style={styles.buttonMap} onPress={navChoose}>
-                                            <Text style={styles.buttonText}>
-                                                {isLocationSet ? 'Done' : 'Change pin'}
-                                            </Text>
-                                            {isLocationSet && (
-                                                <Icon name="checkmark-circle" size={24} color="green" style={styles.iconRight} />
-                                            )}
-                                        </TouchableOpacity>
-                                    </View>
+
+                <View style={styles.ButtonContainer}>
+                  <TouchableOpacity style={styles.buttonMap} onPress={navChoose}>
+                    <Text style={styles.buttonText}>
+                      {isLocationSet ? 'Done' : 'Change pin'}
+                    </Text>
+                    {isLocationSet && (
+                      <Icon name="checkmark-circle" size={24} color="green" style={styles.iconRight} />
+                    )}
+                  </TouchableOpacity>
+                </View>
+
+                {homeData.type === 'Event' && (
+                  <>
+                    <View style={styles.dateTimeContainer}>
+                      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.button}>
+                        <Text style={styles.buttonText}>Pick Date</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.dateText}>{homeData.date.toDateString()}</Text>
+
+                      <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.button}>
+                        <Text style={styles.buttonText}>Pick Time</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.dateText}>{homeData.date.toLocaleTimeString()}</Text>
+
+                      {showDatePicker && (
+                        <DateTimePicker
+                          value={homeData.date}
+                          mode="date"
+                          display="default"
+                          onChange={onDateChange}
+                        />
+                      )}
+
+                      {showTimePicker && (
+                        <DateTimePicker
+                          value={homeData.date}
+                          mode="time"
+                          display="default"
+                          onChange={onTimeChange}
+                        />
+                      )}
+                    </View>
+                  </>
+                )}
 
                 <View style={styles.ButtonContainer}>
                   <TouchableOpacity style={styles.button} onPress={handleUpdate}>
                     <Text style={styles.buttonText}>Update</Text>
                   </TouchableOpacity>
                 </View>
-
-                
               </View>
             </View>
           </>
@@ -142,7 +212,7 @@ function EditHomeProfile({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems:'center',
+    alignItems: 'center',
     width: '100%',
   },
   scrollViewContainer: {
@@ -205,61 +275,45 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
       },
       web: {
-        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
       },
     }),
   },
   ButtonContainer: {
-    flex:1,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  dateTimeContainer: {
+    marginVertical: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 50,
   },
   button: {
-    width: 320,
-    height: 50,
-    justifyContent: 'center',
+    backgroundColor: '#009644',
+    padding: 10,
+    borderRadius: 5,
+    width: '60%',
     alignItems: 'center',
-    backgroundColor: '#00CE5E',
-    borderRadius: 15,
   },
   buttonText: {
-    position: 'absolute',
-    color: colors.white,
-    fontSize: 22,
-    fontWeight: 'bold',
+    color: 'white',
+    fontSize: 18,
   },
   buttonMap: {
-    width: 200,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'red',
-    borderRadius: 15,
-},
-iconRight: {
-  marginLeft: 140,
-},
-  loaderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  submitButton: {
-    marginTop: 20,
-    backgroundColor: '#6EC6B2',
+    backgroundColor: '#00CE5E',
     padding: 10,
-    borderRadius: 20,
-  },
-});
-
-const styles_web = StyleSheet.create({
-  formContainer: {
-    justifyContent: 'center',
+    borderRadius: 5,
+    width: '60%',
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
-  form: {
-    width: "70%",
+  dateText: {
+    margin: 12,
+    fontSize: 16,
+  },
+  iconRight: {
+    marginLeft: 5,
   },
 });
 

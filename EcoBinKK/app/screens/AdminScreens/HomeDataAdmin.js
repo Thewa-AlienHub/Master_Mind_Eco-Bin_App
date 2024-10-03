@@ -46,7 +46,10 @@ function HomeDataAdmin({ route, navigation,drawer }) {
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                setHomeData(data);
+                setHomeData({
+                  ...data,
+                  date: data.date ? data.date.toDate() : null, // Convert Firestore Timestamp to JS Date
+              });
                 console.log('home data set');
                 console.log(data);
                 
@@ -136,6 +139,12 @@ function HomeDataAdmin({ route, navigation,drawer }) {
             <Text style={styles.label}>Zip Code: </Text>
             <Text style={styles.detailText}>{homeData.ZipCode || "Unknown"}</Text>
             </View>
+            {homeData.type === 'Event' && (
+                <View style={styles.detailTextContainer}>
+                    <Text style={styles.label}>Date: </Text>
+                    <Text style={styles.detailText}>{homeData.date ? homeData.date.toLocaleString() : "Unknown"}</Text>
+                </View>
+            )}
     
             <View style={styles.mapContainer}>
     {point.latitude !== 0 && point.longitude !== 0 ? (
