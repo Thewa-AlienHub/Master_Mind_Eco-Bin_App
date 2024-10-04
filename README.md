@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 # Welcome to your EcoBin app 👋
-=======
-# Master_Mind_Management_App
 
 Community System Mangement App
 
