@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera"; // Import Camera from Expo
 import colors from "../../Utils/colors";
-import MenuButton from "../../Components/MenuButton";
 
 const QRCodeScannerScreen = ({ drawer }) => {
   const navigation = useNavigation();

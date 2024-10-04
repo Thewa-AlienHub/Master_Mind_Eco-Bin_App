@@ -6,24 +6,12 @@ import colors from "../../Utils/colors";
 const SuccessScreen = () => {
   const navigation = useNavigation();
 
-  const handleBack = () => {
-    navigation.navigate("QRScan");
-  };
-
   const handleOk = () => {
     navigation.navigate("QRScan");
   };
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Image
-          source={require("../../assets/back-btn.png")}
-          style={styles.backIcon}
-        />
-      </TouchableOpacity>
-
       {/* Robot and Garbage Bin Image */}
       <Image
         source={require("../../assets/binLogo.png")}
@@ -84,6 +72,12 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     paddingHorizontal: 20,
     alignItems: "center",
+    borderColor: "#6EC6B2",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   checkIconContainer: {
     width: 100,

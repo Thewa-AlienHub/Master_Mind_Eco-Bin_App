@@ -16,8 +16,9 @@ import { useNavigation } from "@react-navigation/native";
 import { database, ref, push } from "../../config/DB_config";
 import RNPickerSelect from "react-native-picker-select";
 import colors from "../../Utils/colors";
+import Header from "../../Components/Header_04";
 
-const Index = () => {
+const RecycleForm_04 = () => {
   const [houseAddress, setHouseAddress] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [wasteType, setWasteType] = useState("");
@@ -49,6 +50,10 @@ const Index = () => {
       }).start();
     }
   }, [error]);
+
+  const handleBack = () => {
+    navigation.navigate("QRScan");
+  };
 
   const handleSubmit = async () => {
     // Reset errors
@@ -126,17 +131,11 @@ const Index = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-      <View style={styles.container}>
-        <View style={styles.TopBarContainer}>
-          <View style={styles.backButton}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon name="arrow-back" size={34} color="white" />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.TopBar}>Recycle Waste Info</Text>
-        </View>
-        <View style={styles.formContainer}>
+    <View style={styles.container}>
+      <Header title="Recycle Request Info" onBackPress={handleBack} />
+      {/* Scrollable Form Fields */}
+      <View style={styles.TopBarContainer}>
+        <ScrollView contentContainerStyle={styles.formContainer}>
           <View style={styles.LableContainer}>
             <Text style={styles.label}>House Address :</Text>
           </View>
@@ -209,9 +208,9 @@ const Index = () => {
               <Text style={styles.buttonText}>Submit Info</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </ScrollView>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -239,27 +238,34 @@ const pickerSelectStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "100%",
-    overflow: "auto",
+    backgroundColor: colors.primary,
   },
   TopBarContainer: {
-    backgroundColor: colors.primary,
-    flex: 0,
+    backgroundColor: colors.white,
+    borderTopStartRadius: 70,
+    borderTopEndRadius: 70,
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  formContainer: {
+    marginTop: 10,
     width: "100%",
-    borderBottomStartRadius: 70,
-    flexDirection: "row",
     justifyContent: "center",
-    alignItems: "center",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight * 2 : 0,
-    position: "relative",
   },
   TopBar: {
     fontSize: Platform.OS === "android" || Platform.OS === "ios" ? 30 : 40,
-    textAlign: "center",
-    fontSize: 32,
-    top: -20,
+    textAlign: "center", // Center-align the heading text
     color: colors.white,
+    fontSize: 36,
     fontWeight: "bold",
+  },
+  HLableContainer: {
+    justifyContent: "center",
+    alignItems: "center", // Ensure the heading container is centered
+    paddingTop: 10,
+    position: "absolute",
+    top: 100,
+    width: "100%",
   },
   backButton: {
     position: "absolute",
@@ -267,23 +273,19 @@ const styles = StyleSheet.create({
     left: 10,
     top: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
-  formContainer: {
-    position: "absolute",
-    marginTop: 150,
-    width: "100%",
-    justifyContent: "center",
-  },
   LableContainer: {
     paddingTop: 10,
+    marginHorizontal: 20,
   },
   label: {
     paddingLeft: 20,
     fontSize: 24,
-    color: colors.primary,
+    color: colors.black,
   },
   inputBox: {
     height: 50,
     margin: 12,
+    marginHorizontal: 35,
     borderWidth: 2,
     padding: 10,
     borderColor: colors.primary,
@@ -305,7 +307,6 @@ const styles = StyleSheet.create({
         boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
       },
     }),
-    zIndex: 10,
   },
   ButtonContainer: {
     flex: 1,
@@ -331,22 +332,14 @@ const styles = StyleSheet.create({
     color: "red",
     paddingLeft: 20,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scrollViewContainer: {
-    flexGrow: 1,
-    backgroundColor: colors.white,
-  },
   pickerContainer: {
     height: 50,
     margin: 12,
+    marginHorizontal: 35,
     borderWidth: 2,
     borderColor: colors.primary,
     borderRadius: 10,
   },
 });
 
-export default Index;
+export default RecycleForm_04;

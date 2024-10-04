@@ -22,4 +22,3 @@ To get started, clone the repository and install the dependencies.
    ```bash
    npm install expo-barcode-scanner expo-camera expo-print date-fns react-native-picker-select
    ```
->>>>>>> 5e11b47d5ed7e19c0965ee3bba56ad733e6a6095

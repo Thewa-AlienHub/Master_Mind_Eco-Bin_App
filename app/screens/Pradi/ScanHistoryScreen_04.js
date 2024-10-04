@@ -5,6 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  ScrollView,
+  StatusBar,
   Image,
   Alert,
 } from "react-native";
@@ -21,6 +23,7 @@ import * as Print from "expo-print";
 import { Platform } from "react-native";
 import { parse, compareDesc, isToday } from "date-fns";
 import colors from "../../Utils/colors";
+import Header from "../../Components/Header_04";
 
 const ScanHistoryScreen = () => {
   const [selectedTab, setSelectedTab] = useState("Today");
@@ -96,8 +99,73 @@ const ScanHistoryScreen = () => {
     navigation.navigate("ReportView", { report: item });
   };
 
+  const handleDownloadAll = async () => {
+    try {
+      // Generate HTML content for the PDF
+      const htmlContent = `
+    <html>
+    <head>
+      <style>
+        table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #00CE5E;
+      color: white;
+    }
+    .status-pending {
+      color: red;
+    }
+    .status-complete {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Scan History Report</h1>
+  <table>
+    <tr>
+      <th>Owner Name</th>
+      <th>House Address</th>
+      <th>Waste Type</th>
+      <th>Date</th>
+      <th>Review Status</th>
+    </tr>
+    ${filteredData
+      .map(
+        (item) => `
+        <tr>
+          <td>${item.ownerName}</td>
+          <td>${item.houseAddress}</td>
+          <td>${item.wasteType}</td>
+          <td>${item.dateAndTime}</td>
+          <td class="${
+            item.reviewStatus === "Pending review"
+              ? "status-pending"
+              : "status-complete"
+          }">
+            ${item.reviewStatus}
+          </td>
+        </tr>
+      `
+      )
+      .join("")}
+  </table>
+    </body>
+    </html>
+    `;
 
-  
+    } catch (error) {
+      console.error("Error creating or sharing PDF:", error);
+      Alert.alert("Error", "Failed to download the PDF. Please try again.");
+    }
+  };
 
   const renderItem = ({ item }) => {
     // Determine the color for review status
@@ -142,43 +210,37 @@ const ScanHistoryScreen = () => {
   return (
     <View style={styles.container}>
       {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Image
-          source={require("../../assets/back-btn.png")}
-          style={styles.backIcon}
-        />
-      </TouchableOpacity>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Scanning History</Text>
+      <Header title="Scan History" onBackPress={handleBack} />
+      <View style={styles.TopBarContainer}>
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[styles.tab, selectedTab === "Today" && styles.selectedTab]}
+            onPress={() => setSelectedTab("Today")}
+          >
+            <Text style={styles.tabText}>Today</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, selectedTab === "All" && styles.selectedTab]}
+            onPress={() => setSelectedTab("All")}
+          >
+            <Text style={styles.tabText}>All</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.downloadAllButton}
+            onPress={handleDownloadAll}
+          >
+            <Text style={styles.downloadAllButtonText}>Download All</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView contentContainerStyle={styles.formContainer}>
+          <FlatList
+            data={filteredData} // Use filtered data instead of scanData
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.list}
+          />
+        </ScrollView>
       </View>
-
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === "Today" && styles.selectedTab]}
-          onPress={() => setSelectedTab("Today")}
-        >
-          <Text style={styles.tabText}>Today</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === "All" && styles.selectedTab]}
-          onPress={() => setSelectedTab("All")}
-        >
-          <Text style={styles.tabText}>All</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.downloadAllButton}
-          onPress={handleDownloadAll}
-        >
-          <Text style={styles.downloadAllButtonText}>Download All</Text>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={filteredData} // Use filtered data instead of scanData
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
-      />
     </View>
   );
 };
@@ -186,36 +248,24 @@ const ScanHistoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
-    paddingHorizontal: 20,
-    marginTop: 70,
-  },
-  backButton: {
-    position: "absolute",
-    top: 20,
-    left: 20,
-    padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1,
-  },
-  backIcon: {
-    width: 40,
-    height: 40,
-  },
-  header: {
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: colors.primary,
+    backgroundColor: colors.primary,
   },
   tabsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     marginBottom: 10,
+  },
+  TopBarContainer: {
+    backgroundColor: colors.white,
+    borderTopStartRadius: 70,
+    borderTopEndRadius: 70,
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  formContainer: {
+    marginTop: 10,
+    width: "100%",
+    justifyContent: "center",
   },
   tab: {
     paddingVertical: 6,
