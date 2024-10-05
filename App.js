@@ -6,6 +6,16 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from './app/screens/Login';
 import SignUp from './app/screens/SignUp';
 import MainBar from './app/screens/MainBar';
+import RequestRecycle from './app/screens/Sasindu/RequestRecycle_01';
+import MyRequest from './app/screens/Sasindu/MyRequest_01';
+import Refund from './app/screens/Sasindu/Refund_01';
+import Payment from './app/screens/Sasindu/Payment_01';
+import AddCardDetails from './app/screens/Sasindu/AddCardDetails_01';
+import ManageRequest from './app/screens/Sasindu/ManageRequest_01';
+import ReceivedRequest from './app/screens/Sasindu/AdminSide_01/ReceivedRequest';
+import ReceivedRequestView from './app/screens/Sasindu/AdminSide_01/ReceivedRequestView';
+import SuccessScreen from './app/screens/SuccessScreen_01';
+
 import AddTenant from './app/screens/KK/AddTenant_02';
 import AddHome from './app/screens/KK/AddHome_02';
 import AddResident from './app/screens/KK/AddResident_02';
@@ -129,6 +139,52 @@ export default function App() {
         <Stack.Screen
           name='HomeDataAdmin'
           component={HomeDataAdmin}
+          options={{headerShown : false}}
+        />
+        {/*Sasindu*/}
+        <Stack.Screen
+          name='addRequest'
+          component={RequestRecycle}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='myRequest'
+          component={MyRequest}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='manageRequest'
+          component={ManageRequest}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='payment'
+          component={Payment}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='refund'
+          component={Refund}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='receivedRequest'
+          component={ReceivedRequest}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='receivedRequestView'
+          component={ReceivedRequestView}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='addCardDetails'
+          component={AddCardDetails}
+          options={{headerShown : false}}
+        />
+        <Stack.Screen
+          name='success'
+          component={SuccessScreen}
           options={{headerShown : false}}
         />
         

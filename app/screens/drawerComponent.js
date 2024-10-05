@@ -12,7 +12,6 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
 
   const [profileImageUrl, setProfileImageUrl] = useState('');
   
-
   useEffect(() => {
     // Fetch the image URL from Firebase
     const fetchProfileImage = async () => {
@@ -75,10 +74,28 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
             <TouchableOpacity onPress={() => drawer.current.closeDrawer()} style={styles.menuButtonContainer}>
             {data?.data.role === 'user' && (
               <View>
-              <TouchableOpacity onPress={() => navigation.navigate('addRequest')}>
+              <TouchableOpacity onPress={() => navigation.navigate('addRequest', { email:data?.data?.email })}>
                 <View style={styles.iconTextRow}>
                 <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
                 <Text style={styles.iconText}>Add Recycle Request</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('myRequest', { email:data?.data?.email })}>
+                <View style={styles.iconTextRow}>
+                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>My Request</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('refund', { email:data?.data?.email })}>
+                <View style={styles.iconTextRow}>
+                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Refund</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('payment', { email:data?.data?.email })}>
+                <View style={styles.iconTextRow}>
+                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Payment</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate('addTenant',{email:data?.data?.email, data:data})}>
@@ -109,11 +126,17 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
                 <Text style={styles.iconText}>Driver Map</Text>
               </View>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('receivedRequest')}>
+                <View style={styles.iconTextRow}>
+                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Received Request</Text>
+                </View>
+              </TouchableOpacity>
               </View>
             )}
             </TouchableOpacity>
-            <View >
-              <TouchableOpacity style={styles.logoutContainer} onPress={handleLogout}>
+            <View style={styles.logoutContainer}>
+              <TouchableOpacity style={styles.logoutTouchable} onPress={handleLogout}>
                 <Icon name="arrow-back-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
                 <Text style={styles.logoutIconText}>Log Out</Text>
               </TouchableOpacity>
@@ -227,11 +250,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   logoutContainer:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop:height*0.53,
+   
+    marginTop:height*0.3,
     marginLeft:width*0.2
   },
+  logoutTouchable:{
+    flexDirection: 'row',
+    alignItems: 'center',
+  }
 });
 
 export default DrawerComponent;
