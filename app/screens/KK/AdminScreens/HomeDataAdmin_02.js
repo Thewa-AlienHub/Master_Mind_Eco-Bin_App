@@ -1,36 +1,43 @@
 import React from 'react';
-import { Text, View, Button, StyleSheet, StatusBar, Platform,Image, Linking,TouchableOpacity, TextInput, ScrollView,Alert } from 'react-native';
+import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimensions,TouchableOpacity, TextInput, ScrollView,Alert } from 'react-native';
 import { useState, useEffect,useCallback } from 'react';
-import { doc, getDoc,deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { DB } from '../../config/DB_config';
-import colors from '../../Utils/colors';
+import { DB } from '../../../config/DB_config';
+import colors from '../../../Utils/colors';
 import { useFocusEffect } from '@react-navigation/native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
-import MenuButton from '../../Components/MenuButton';
-import NotificationBell from '../../Components/NotificationBell';
+import MenuButton from '../../../Components/MenuButton';
+import NotificationBell from '../../../Components/NotificationBell';
 
 
 
 
-function HomeProfile({ route, navigation, drawer }) {
+function HomeDataAdmin({ route, navigation,drawer }) {
     const { docId } = route.params;
+    console.log(docId);
+    
+    const { width, height } = useWindowDimensions();
+    const isMobile = width < 600;
+
     const [homeData, setHomeData] = useState({
-      NickName: '',
+        NickName:'',
         Ad_Line1: '',
         Ad_Line2: '',
         Ad_Line3: '',
         City: '',
         ZipCode: '',
-      date: '',
-      qrCodeUrl: '' // Add this field to store the QR code URL
     });
+
     const [combinedAddress, setCombinedAddress] = useState('');
     const [loading, setLoading] = useState(true);
-  const [point, setPoint] = useState({
-      latitude: 0,
-      longitude: 0,
+    const [point,setPoint] = useState({
+        latitude:0,
+        longitude:0,
     });
+
+
+
 
     const fetchHomeData = useCallback(async () => {
         try {
@@ -42,8 +49,11 @@ function HomeProfile({ route, navigation, drawer }) {
                 setHomeData({
                   ...data,
                   date: data.date ? data.date.toDate() : null, // Convert Firestore Timestamp to JS Date
-                  qrCodeUrl: data.qrCodeUrl || '' // Get the QR code URL from Firestore
               });
+                console.log('home data set');
+                console.log(data);
+                
+                
                 setCombinedAddress(`${data.Ad_Line1}\n${data.Ad_Line2}\n${data.Ad_Line3}\n${data.City}`);
             } else {
                 console.log('No file found');
@@ -55,14 +65,14 @@ function HomeProfile({ route, navigation, drawer }) {
         }
     }, [docId]);
     
-  const getCodinantsForMap = async () => {
+    const getCodinantsForMap = async() =>{
         try {
             const docRef = doc(DB, "registeredPins", docId);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
-              setPoint(data);
+                setPoint(data)
             } else {
                 console.log('No points found');
             }
@@ -71,9 +81,9 @@ function HomeProfile({ route, navigation, drawer }) {
         } finally {
             setLoading(false);
         }
-  };
+    }
 
-  const handleDelete = async () => {
+    const handleDelete = async () => {
       try {
           await deleteDoc(doc(DB, "tenants", docId)); // Delete the document
           await deleteDoc(doc(DB, "registeredPins", docId)); // Optionally delete related pins
@@ -93,13 +103,14 @@ function HomeProfile({ route, navigation, drawer }) {
         }, [fetchHomeData])
     );
 
+    
+
+
     return (
         <View style={styles.mainContainer}>
           <View style={styles.headerContainer}>
             <View style={styles.iconContainer}>
-                  <TouchableOpacity onPress={() => navigation.goBack()}  style={styles.backButtonContainer}>
-                                    <Icon name="arrow-back" size={34} color="white" />
-                                </TouchableOpacity>
+            <Icon name="arrow-back" size={34} color="white" />
               <View style={styles.logoContainer}>
                 <Text style={styles.logotext}>Eco Bin</Text>
               </View>
@@ -109,11 +120,19 @@ function HomeProfile({ route, navigation, drawer }) {
             </View>
           </View>
     
-          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.detailTab}>
+            <Text style={styles.detailHeader}>Tenant Details</Text>
+          </View>
+    
+          
+    
+          {/* Personal Details */}
+          
+          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} >
           <View style={styles.detailsCard}>
             <View style={styles.detailTextContainer}>
             <Text style={styles.label}>Address: </Text>
-                      <Text style={styles.detailText}>{combinedAddress || "example@gmail.com"}</Text>
+            <Text style={styles.detailText}>{combinedAddress }</Text>
             </View>
     
             <View style={styles.detailTextContainer}>
@@ -126,7 +145,7 @@ function HomeProfile({ route, navigation, drawer }) {
                     <Text style={styles.detailText}>{homeData.date ? homeData.date.toLocaleString() : "Unknown"}</Text>
                 </View>
             )}
-
+    
             <View style={styles.mapContainer}>
     {point.latitude !== 0 && point.longitude !== 0 ? (
         <MapView
@@ -137,10 +156,10 @@ function HomeProfile({ route, navigation, drawer }) {
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
             }}
-                              scrollEnabled={false}
-                              zoomEnabled={true}
-                              rotateEnabled={true}
-                              pitchEnabled={false}
+            scrollEnabled={false} // Allow panning
+            zoomEnabled={true} // Allow zooming
+            rotateEnabled={true} // Disable rotation
+            pitchEnabled={false} // Disable tilt/3D view
         >
             <Marker
                 coordinate={{
@@ -156,32 +175,26 @@ function HomeProfile({ route, navigation, drawer }) {
     )}
 </View>
 
-                  {/* QR Code Section */}
-                  {homeData.qrCodeUrl ? (
-                      <View style={styles.qrCodeContainer}>
-                          <Image source={{ uri: homeData.qrCodeUrl }} style={styles.qrCode} />
-                          <TouchableOpacity style={styles.downloadButton} onPress={() => Linking.openURL(homeData.qrCodeUrl)}>
-                              <Text style={styles.downloadButtonText}>Download QR Code</Text>
-                          </TouchableOpacity>
-                      </View>
-                  ) : (
-                      <Text>No QR code available</Text>
-                  )}
+    
+            
+            
+            
             
           </View>
     
-              {/* Edit & Delete Buttons */}
-              <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('editHomeProfile', { docId: docId })}>
-                  <Text style={styles.editButtonText}>Edit</Text>
+           {/* Edit Profile Button */}
+           <TouchableOpacity style={styles.editButton} onPress={handleDelete}>
+            <Text style={styles.editButtonText}>Delete</Text>
           </TouchableOpacity>
     
-              <TouchableOpacity style={styles.editButton} onPress={handleDelete}>
-                  <Text style={styles.editButtonText}>Delete</Text>
-              </TouchableOpacity>
           </ScrollView>
+          
+    
+         
         </View>
       );
-}
+    };
+    
     const styles = StyleSheet.create({
       mainContainer: {
         flex: 1,
@@ -328,27 +341,6 @@ function HomeProfile({ route, navigation, drawer }) {
         width: '100%',
         height: '100%',
       },
-      qrCodeContainer: {
-        alignItems: 'center',
-        marginVertical: 20,
-    },
-    qrCode: {
-        width: 200,
-        height: 200,
-        borderRadius: 10,
-    },
-    downloadButton: {
-        backgroundColor: colors.primary,
-        padding: 15,
-        borderRadius: 10,
-        marginTop: 20,
-        alignItems: 'center',
-    },
-    downloadButtonText: {
-        color: colors.white,
-        fontSize: 18,
-        fontWeight: 'bold',
-    }
     });
     
-export default HomeProfile;
+export default HomeDataAdmin;

@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, Platform, StyleSheet, SafeAreaView, StatusBar,useWindowDimensions, Image, Button, TouchableOpacity } from 'react-native';
-import colors from '../config/colors';
+import colors from '../../Utils/colors';
 import { useEffect } from 'react';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 function AddTenant({navigation,route}) {
-    const{email} = route.params;
+    const{email,data} = route.params;
     const {height,width} = useWindowDimensions();
     let cardComponents;
     const isMobileView = width < 600;
@@ -24,7 +25,7 @@ function AddTenant({navigation,route}) {
                                         navigation.navigate('addHome', { email: email });
                                     }}>    
                     <View>
-                        <Image source={require('../assets/house.png')}
+                        <Image source={require('../../assets/house.png')}
                                 style={isMobileView ? styles.house : styles_web.house}/>
                     </View>
                     <View style={isMobileView ? styles.textBoxInCard :styles_web.cardText}>
@@ -42,7 +43,7 @@ function AddTenant({navigation,route}) {
             <View style={isMobileView ? styles.cardBody :styles_web.cardBody}>
                 <TouchableOpacity onPress={()=>navigation.navigate('addEvent')}>
                     <View>
-                        <Image source={require('../assets/event.png')}
+                        <Image source={require('../../assets/event.png')}
                                         style = {isMobileView ? styles.event:styles_web.event}/>
                     </View>
 
@@ -61,7 +62,7 @@ function AddTenant({navigation,route}) {
         cardComponents = (
 
             <View style={[styles.cardContainer,{height : height-StatusBar.currentHeight}]}>
-                <TouchableOpacity onPress={()=>navigation.navigate('addHome',{email: email})}>
+                <TouchableOpacity onPress={()=>navigation.navigate('addHome',{email: email, data:data})}>
                     <View style={styles.cardBody}>
                             <View style = {styles.textBoxInCard}>
                                 <Text style={{fontSize:30}}>Add Home</Text>
@@ -70,14 +71,14 @@ function AddTenant({navigation,route}) {
                                 <Text style={{fontSize:15}}>to collect your trash</Text>
                             </View>
                             <View>
-                                <Image source={require('../assets/house.png')}
+                                <Image source={require('../../assets/house.png')}
                                         style = {styles.house}/>
                             </View>
                     </View>
                 </TouchableOpacity>
 
 
-                <TouchableOpacity onPress={()=>navigation.navigate('addResident',{email: email})}>
+                <TouchableOpacity onPress={()=>navigation.navigate('addResident',{email: email, data:data})}>
                     <View style={styles.cardBody}>
                             <View style = {styles.textBoxInCard}>
                                 <Text style={{fontSize:30}}>Add Resident</Text>
@@ -86,13 +87,13 @@ function AddTenant({navigation,route}) {
                                 <Text style={{fontSize:15}}>and generate a QR code</Text>
                             </View>
                             <View>
-                                <Image source={require('../assets/resident.png')}
+                                <Image source={require('../../assets/resident.png')}
                                         style = {styles.resident}/>
                             </View>
                     </View>
                 </TouchableOpacity>
                     
-                <TouchableOpacity onPress={()=>navigation.navigate('addEvent',{email: email})}>
+                <TouchableOpacity onPress={()=>navigation.navigate('addEvent',{email: email, data:data})}>
                     <View style={styles.cardBody}>
                             <View style = {styles.textBoxInCard}>
                                 <Text style={{fontSize:30}}>Add Event</Text>
@@ -101,7 +102,7 @@ function AddTenant({navigation,route}) {
                                 <Text style={{fontSize:15}}>to collect your trash</Text>
                             </View>
                             <View>
-                                <Image source={require('../assets/event.png')}
+                                <Image source={require('../../assets/event.png')}
                                             style = {styles.event}/>
                             </View>
                     </View>
@@ -116,12 +117,12 @@ function AddTenant({navigation,route}) {
     return (
         <View style={styles.container}>
             <View style={styles.TopBarContainer}>
-                <View style = {styles.backButton}>
-                    <Button title='back' onPress={()=>navigation.goBack()}/>
+                            <View style={styles.backButton}>
+                                <TouchableOpacity onPress={() => navigation.goBack()}  style={styles.backButtonContainer}>
+                                    <Icon name="arrow-back" size={34} color="black" />
+                                </TouchableOpacity>
                 </View>
-                <Text style={styles.TopBar}>
-                    Add Tenants
-                </Text>
+                            <Text style={styles.TopBar}>Add Tenant</Text>
             </View>
             <View>{cardComponents}</View>
         </View>
@@ -131,7 +132,6 @@ function AddTenant({navigation,route}) {
 const styles = StyleSheet.create({
     container: {
        flex: 1,
-       backgroundColor : colors.dark, 
        width : '100%'
     },
     TopBarContainer: {
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     TopBar: {
         fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 30 : 40, // Adjusts font size based on platform
         textAlign: 'center',
-        color : colors.white,
+        color : colors.black,
     },
     cardContainer:{
         flexDirection : 'column',
@@ -160,7 +160,9 @@ const styles = StyleSheet.create({
         alignItems: 'center', // Centers text inside the card
         flexDirection : 'row',
         justifyContent: 'center', 
-        height : 200
+        height : 200,
+        borderWidth:3,
+        borderColor:colors.primary,
     },
 
    textBoxInCard:{

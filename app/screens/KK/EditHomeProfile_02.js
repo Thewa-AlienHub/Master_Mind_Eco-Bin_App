@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Button, StyleSheet, StatusBar, Platform, useWindowDimensions, TextInput, ScrollView, TouchableOpacity } from 'react-native';
-import colors from '../config/colors';
+import colors from '../../Utils/colors';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { DB } from '../config/DB_config';
+import { DB } from '../../config/DB_config';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -105,7 +105,6 @@ function EditHomeProfile({ route, navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
       <View style={styles.container}>
         {loading ? (
           <View style={styles.loaderContainer}>
@@ -115,13 +114,16 @@ function EditHomeProfile({ route, navigation }) {
           <>
             <View style={styles.TopBarContainer}>
               <View style={styles.backButton}>
-                <Button title='back' onPress={() => navigation.navigate('addTenant')} />
+                                <TouchableOpacity onPress={() => navigation.goBack()}  style={styles.backButtonContainer}>
+                                    <Icon name="arrow-back" size={34} color="white" />
+                                </TouchableOpacity>
               </View>
-              <Text style={styles.TopBar}>Edit details</Text>
+                            <Text style={styles.TopBar}>Add Event</Text>
             </View>
 
-            <View style={[styles.formContainer, !isMobile && styles_web.formContainer]}>
-              <View style={!isMobile && styles_web.form}>
+            <View style= {styles.formbackground}>
+                        <ScrollView>
+                            <View style={styles.formContainer}>
                 <View style={styles.LableContainer}>
                   <Text style={styles.label}>Nick Name :</Text>
                 </View>
@@ -164,12 +166,12 @@ function EditHomeProfile({ route, navigation }) {
                 {homeData.type === 'Event' && (
                   <>
                     <View style={styles.dateTimeContainer}>
-                      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.button}>
+                      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.buttonDateTime}>
                         <Text style={styles.buttonText}>Pick Date</Text>
                       </TouchableOpacity>
                       <Text style={styles.dateText}>{homeData.date.toDateString()}</Text>
 
-                      <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.button}>
+                      <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.buttonDateTime}>
                         <Text style={styles.buttonText}>Pick Time</Text>
                       </TouchableOpacity>
                       <Text style={styles.dateText}>{homeData.date.toLocaleTimeString()}</Text>
@@ -201,119 +203,169 @@ function EditHomeProfile({ route, navigation }) {
                   </TouchableOpacity>
                 </View>
               </View>
+              </ScrollView>
             </View>
           </>
         )}
       </View>
-    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     width: '100%',
-  },
-  scrollViewContainer: {
-    flexGrow: 1,
+      backgroundColor: colors.primary,
+  
   },
   TopBarContainer: {
-    width: '100%',
-    flexDirection: 'row',
+         
+      flex: 0.2,
+      width: '90%',
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 2 : 0,
-    backgroundColor: '#00CE5E',
-    borderBottomStartRadius: 70,
-    position: 'relative',
+      alignItems: 'flex-end',
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 2: 70,
   },
   TopBar: {
-    fontSize: Platform.OS === 'android' || Platform.OS === 'ios' ? 36 : 56,
+      fontSize: 40,
     color: colors.white,
     fontWeight: 'bold',
   },
   backButton: {
+      position: 'absolute',
+      left: 10,
+      top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  backButtonContainer: {
     position: 'absolute',
     left: 10,
     top: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   formContainer: {
-    width: '80%',
-    paddingTop: 50,
+      paddingHorizontal: 5,
+      paddingBottom:30,
+      width: '100%',
+      alignSelf: 'center',
+      height:'100%'
+      
+  },formbackground: {
+      backgroundColor: colors.white,
+      flex: 1,
+      borderTopLeftRadius: 60,
+      borderTopRightRadius: 60,
+      height: 800,
+      width: '100%',
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight * 2: 30,
   },
   LableContainer: {
-    paddingTop: 10,
+      paddingTop: 9,
   },
   label: {
     paddingLeft: 20,
-    fontSize: 24,
-    color: '#009644',
+      fontSize: 22,
+      color: 'black',
   },
   addressLabelContainer: {
     paddingTop: 10,
     margin: 15,
+  },
+  ButtonContainer: {
+      flex: 1,
+      top: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  ButtonContainerQR: {
+      flex: 1,
+      top: 10,
+      bottom:30,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  datePickerContainer: {
+      height: 50,
+      margin: 12,
+      borderWidth: 2,
+      padding: 10,
+      borderColor: '#6EC6B2',
+      borderRadius: 10,
+      justifyContent: 'center',
+      backgroundColor: '#E6E6E6'
+  },
+  datePickerContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+  },
+  dateText: {
+      fontSize: 17,
+  },
+  calendarIcon: {
+      marginLeft: 'auto',
+  },
+  button: {
+      width: 325,
+      height: 45,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#6EC6B2',
+      borderRadius: 15,
+  },
+  buttonDateTime: {
+      width: 200,
+      height: 45,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#6EC6B2',
+      borderRadius: 15,
+  },
+  buttonMap: {
+          width: 200,
+          height: 50,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.primary,
+          borderRadius: 15,
+          marginBottom: 20,
+      },
+      buttonDisabled: {
+          width: 200,
+          height: 50,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#797a79',
+          borderRadius: 15,
+          marginBottom: 20,
+      },
+  buttonText: {
+      position: 'absolute',
+      color: colors.white,
+      fontSize: 22,
+      fontWeight: "bold",
+  },
+  iconRight: {
+      marginLeft: 140,
   },
   inputBox: {
     height: 50,
     margin: 12,
     borderWidth: 2,
     padding: 10,
-    borderColor: '#009644',
+      borderColor: '#6EC6B2',
+      fontSize: 19,
     borderRadius: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-      },
-      android: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: 100 },
-        shadowOpacity: 1,
-        shadowRadius: 2,
-      },
-      web: {
-        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-      },
-    }),
+      backgroundColor: '#E6E6E6',
   },
-  ButtonContainer: {
-    marginTop: 20,
-    alignItems: 'center',
+
+  errorText: {
+      color: 'red',
+      paddingLeft: 20,
+      top:-12
   },
   dateTimeContainer: {
     marginVertical: 20,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  button: {
-    backgroundColor: '#009644',
-    padding: 10,
-    borderRadius: 5,
-    width: '60%',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-  },
-  buttonMap: {
-    backgroundColor: '#00CE5E',
-    padding: 10,
-    borderRadius: 5,
-    width: '60%',
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  dateText: {
-    margin: 12,
-    fontSize: 16,
-  },
-  iconRight: {
-    marginLeft: 5,
   },
 });
 

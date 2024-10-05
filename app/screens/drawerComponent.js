@@ -74,12 +74,42 @@ const DrawerComponent = ({ navigation, drawer ,data}) => {
           <View style={styles.menucontainer}>
             <TouchableOpacity onPress={() => drawer.current.closeDrawer()} style={styles.menuButtonContainer}>
             {data?.data.role === 'user' && (
+              <View>
               <TouchableOpacity onPress={() => navigation.navigate('addRequest')}>
                 <View style={styles.iconTextRow}>
                 <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
                 <Text style={styles.iconText}>Add Recycle Request</Text>
                 </View>
               </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('addTenant',{email:data?.data?.email, data:data})}>
+              <View style={styles.iconTextRow}>
+                <Icon name="cash-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+                <Text style={styles.iconText}>Add Tenant</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('tenantsList',{email:data?.data?.email})}>
+              <View style={styles.iconTextRow}>
+                <Icon name="cash-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+                <Text style={styles.iconText}>Your Tenants</Text>
+              </View>
+              </TouchableOpacity>
+              </View>
+            )}
+            {data?.data.role === 'admin' && (
+              <View>
+              <TouchableOpacity onPress={() => navigation.navigate('TableFull')}>
+                <View style={styles.iconTextRow}>
+                <Icon name="create-sharp" style={{ fontWeight: 'bold', color: colors.white, fontSize: 30 }} />
+                <Text style={styles.iconText}>Tenant details</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('DriverMap')}>
+              <View style={styles.iconTextRow}>
+                <Icon name="cash-outline" style={{fontWeight:'bold'}} size={27} color="black" />
+                <Text style={styles.iconText}>Driver Map</Text>
+              </View>
+            </TouchableOpacity>
+              </View>
             )}
             </TouchableOpacity>
             <View >
