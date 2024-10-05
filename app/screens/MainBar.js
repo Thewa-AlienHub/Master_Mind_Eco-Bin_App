@@ -5,6 +5,8 @@ import {
   StyleSheet,
   DrawerLayoutAndroid,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import colors from '../Utils/colors';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -14,13 +16,13 @@ import Home from './Home';
 import Login from './Login';
 import MenuButton from '../Components/MenuButton'; // Import the externalized menu button
 import Profile from './Profile';
+import ReportedList_03 from './Thewan/ReportedList_03';
 
 const Tab = createBottomTabNavigator();
 
 const MainBar = ({ navigation, route }) => {
   const drawer = useRef(null);
   const  {data}  = route.params;
-
   const screenWidth = Dimensions.get('window').width;
 
   return (
@@ -30,7 +32,11 @@ const MainBar = ({ navigation, route }) => {
       drawerPosition="left"
       renderNavigationView={() => <DrawerComponent navigation={navigation} drawer={drawer} data = {data} />}
     >
-      
+      <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      enabled={false} // Prevents keyboard interaction from adjusting layout
+    >
       
       <Tab.Navigator
        screenOptions={{
@@ -50,6 +56,7 @@ const MainBar = ({ navigation, route }) => {
         tabBarIconStyle: {
           borderWidth: 0,       // Ensures no border for tab icons
         },
+        keyboardHidesTabBar: true,
       }}
       >
       <Tab.Screen
@@ -63,16 +70,19 @@ const MainBar = ({ navigation, route }) => {
           }}
          
         />
-        <Tab.Screen
-          name="Amenity_List"
-          component={Profile}
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size ,focused}) => (
-              <Icon name="newspaper-sharp" color={focused ? colors.dark :colors.subitm2} size={30} />
-            ),
-          }}
-        />
+       {data.data.role === 'admin' && ( // Conditionally render the Amenity_List tab
+            <Tab.Screen
+              name="ReportedList_03_Main"
+              component={() => <ReportedList_03 drawer={drawer} />}
+              options={{
+                headerShown: false,
+                tabBarIcon: ({ color, size, focused }) => (
+                  <Icon name="newspaper-sharp" color={focused ? colors.dark : colors.subitm2} size={30} />
+                ),
+              }}
+            />
+          )}
+      
         <Tab.Screen
           name="Shopping_Cart"
           component={Profile}
@@ -96,6 +106,7 @@ const MainBar = ({ navigation, route }) => {
         
         
       </Tab.Navigator>
+      </KeyboardAvoidingView>
     </DrawerLayoutAndroid>
   );
 };
