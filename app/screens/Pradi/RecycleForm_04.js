@@ -13,12 +13,13 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { database, ref, push } from "../../config/DB_config";
+import { database, ref, push, DB } from "../../config/DB_config";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import RNPickerSelect from "react-native-picker-select";
 import colors from "../../Utils/colors";
 import Header from "../../Components/Header_04";
 
-const RecycleForm_04 = () => {
+const RecycleForm_04 = ({ route }) => {
   const [houseAddress, setHouseAddress] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [wasteType, setWasteType] = useState("");
@@ -27,6 +28,8 @@ const RecycleForm_04 = () => {
   const [loading, setLoading] = useState(false);
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
+  const { docID } = route.params;
+  const [buttonDisabled, setButtonDisabled] = useState(false);
 
   // Function to check if a string contains only letters
   const isAlphabetic = (text) => /^[A-Za-z\s]+$/.test(text);
@@ -51,60 +54,93 @@ const RecycleForm_04 = () => {
     }
   }, [error]);
 
+  useEffect(() => {
+    const fetchTenantAndRequestData = async () => {
+      try {
+        // Fetch tenant address
+        const tenantDocRef = doc(DB, "tenants", docID);
+        const tenantSnap = await getDoc(tenantDocRef);
+
+        if (tenantSnap.exists()) {
+          const tenantData = tenantSnap.data();
+          const address = `${tenantData.Ad_Line1}, ${tenantData.Ad_Line2}, ${tenantData.Ad_Line3}, ${tenantData.City}`;
+          setHouseAddress(address); // Set the address in the input box
+        } else {
+          console.log("No such document in tenants:", docID);
+        }
+
+        // Fetch recycle request data
+        const requestDocRef = doc(DB, "recycleRequest", docID); // Adjust the collection path as needed
+        const requestSnap = await getDoc(requestDocRef);
+
+        if (requestSnap.exists()) {
+          const requestData = requestSnap.data();
+          setOwnerName(docID); // Set owner name as docID
+          setWasteType(requestData.type); // Set waste type from the request
+        } else {
+          console.log("No such document in recycleRequest:", docID);
+        }
+      } catch (error) {
+        console.error("Error fetching tenant and request data:", error);
+      }
+    };
+
+    fetchTenantAndRequestData(); // Call function to fetch address and request data
+  }, [docID]);
+
   const handleBack = () => {
     navigation.navigate("QRScan");
   };
 
   const handleSubmit = async () => {
-    // Reset errors
     setError({});
-
-    // Validate input
+    // Validate input before setting loading
     let isValid = true;
     let newErrors = {};
-
+  
     if (!houseAddress.trim()) {
       newErrors.houseAddress = "House address is required";
       isValid = false;
     }
-
+  
     if (!ownerName.trim()) {
       newErrors.ownerName = "Owner name is required";
       isValid = false;
-    } else if (!isAlphabetic(ownerName)) {
-      newErrors.ownerName = "Owner name should contain only letters";
-      isValid = false;
     }
-
+  
     if (!wasteType) {
       newErrors.wasteType = "Recycle Waste Type is required";
       isValid = false;
     }
-
+  
     if (!weight.trim()) {
       newErrors.weight = "Weight is required";
       isValid = false;
     } else if (!isNumeric(weight)) {
-      newErrors.weight = "Weight should contain only Numbers";
+      newErrors.weight = "Weight should contain only numbers";
       isValid = false;
     }
-
+  
     if (!isValid) {
       setError(newErrors);
       return; // Stop if validation fails
     }
-
+  
+    // Proceed with loading and data submission
+    setLoading(true);
+    setButtonDisabled(true); // Disable the button during loading
+  
     try {
       setLoading(true);
-
+  
       // Get the current date and time
       const timestamp = Date.now();
       const dateAndTime = new Date(timestamp).toLocaleString();
       const reviewStatus = "Pending review";
-
-      // Create a reference to the "forms" node
+  
+      // Create a reference to the "forms" node in the Realtime Database
       const recycleWasteCollectionRef = ref(database, "RecycleWasteCollection");
-
+  
       // Use the push function to add a new entry
       await push(recycleWasteCollectionRef, {
         houseAddress,
@@ -114,21 +150,34 @@ const RecycleForm_04 = () => {
         dateAndTime,
         reviewStatus,
       });
-
+  
+      // Update the Firestore document in the recycleRequest collection
+      const requestDocRef = doc(DB, "recycleRequest", docID);
+      await updateDoc(requestDocRef, {
+        status: "Collected", // Update status field to "Collected"
+      });
+  
       // Reset form fields
       setHouseAddress("");
       setOwnerName("");
       setWasteType("");
       setWeight("");
-
-      // Redirect to Success screen
-      navigation.navigate("Success");
+  
+      // Redirect to QRCodeScannerScreen with success alert
+      navigation.navigate("Success", {
+        alertMessage: `Successfully submitted the recycle request for ${ownerName} and updated status to Collected.`,
+        disableButton: true,
+      });
     } catch (error) {
-      console.error("Error submitting data: ", error);
+      console.error("Error submitting data or updating Firestore: ", error);
+      setError({ general: "Failed to submit data. Please try again." });
     } finally {
       setLoading(false);
+      setButtonDisabled(false);
     }
   };
+  
+  
 
   return (
     <View style={styles.container}>
@@ -143,7 +192,7 @@ const RecycleForm_04 = () => {
             style={styles.inputBox}
             placeholder="House Address"
             value={houseAddress}
-            onChangeText={setHouseAddress}
+            editable={false} // Make it read-only if needed
           />
           {error.houseAddress && (
             <Animated.View style={{ opacity: opacityAnim }}>
@@ -151,13 +200,13 @@ const RecycleForm_04 = () => {
             </Animated.View>
           )}
           <View style={styles.LableContainer}>
-            <Text style={styles.label}>Owner Name :</Text>
+            <Text style={styles.label}>Tenant Name :</Text>
           </View>
           <TextInput
             style={styles.inputBox}
             placeholder="Owner Name"
             value={ownerName}
-            onChangeText={setOwnerName}
+            editable={false} // Make it read-only if needed
           />
           {error.ownerName && (
             <Animated.View style={{ opacity: opacityAnim }}>
@@ -181,6 +230,7 @@ const RecycleForm_04 = () => {
               ]}
               placeholder={{ label: "Select a waste type...", value: null }}
               style={pickerSelectStyles}
+              value={wasteType} // Set the initial value to wasteType
             />
             {error.wasteType && (
               <Animated.View style={{ opacity: opacityAnim }}>
@@ -204,15 +254,19 @@ const RecycleForm_04 = () => {
             </Animated.View>
           )}
           <View style={styles.ButtonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Submit Info</Text>
-            </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.button, buttonDisabled && styles.buttonDisabled]} 
+            onPress={buttonDisabled ? null : handleSubmit} // Disable the button click
+          >
+            <Text style={styles.buttonText}>Submit Info</Text>
+          </TouchableOpacity>
           </View>
         </ScrollView>
       </View>
     </View>
   );
 };
+
 
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
@@ -339,6 +393,17 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.primary,
     borderRadius: 10,
+  },
+  submitButton: {
+    width: 320,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.primary, // Default color
+    borderRadius: 15,
+  },
+  disabled: {
+    backgroundColor: "#d3d3d3", // Light gray for disabled
   },
 });
 

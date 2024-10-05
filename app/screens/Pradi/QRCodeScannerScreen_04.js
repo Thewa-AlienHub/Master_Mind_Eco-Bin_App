@@ -1,72 +1,96 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback  } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import colors from "../../Utils/colors";
-import { doc, updateDoc, Timestamp } from "firebase/firestore"; // Firestore imports
+import { doc, updateDoc, Timestamp, getDoc } from "firebase/firestore"; // Firestore imports
 import { DB } from "../../config/DB_config"; // Firestore configuration
 
-const QRCodeScannerScreen = () => {
+const QRCodeScannerScreen = ({ route }) => {
   const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [scanned, setScanned] = useState(false);
   const qrLock = useRef(false);
+  const [isInRecycleRequest, setIsInRecycleRequest] = useState(false);
+  const [extractedDocID, setExtractedDocID] = useState(null); 
+  const [buttonDisabled, setButtonDisabled] = useState(false);
 
-  // Ask for camera permission when the component is mounted
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === "granted");
     })();
-  }, []);
+    
+    // Show alert if alertMessage exists in route params
+    if (route.params?.alertMessage) {
+      Alert.alert("Success", route.params.alertMessage, [
+        { text: "OK" },
+      ]);
+    }
+
+    // Check if disableButton is true and set button state
+    if (route.params?.disableButton) {
+      setButtonDisabled(true);
+    }
+  }, [route.params]);
 
   const handleScan = () => {
     setScanning(true);
     setScanned(false);
   };
 
-  const handleBarCodeScanned = ({ type, data }) => {
-    if (scanned) return; // Prevent multiple scans
+  const handleBarCodeScanned = useCallback(({ type, data }) => {
+    if (scanned) return;
     setScanned(true);
 
-    // Extract the actual document ID from the scanned data
     const docID = extractDocID(data);
-
+    
     if (docID) {
-      // Only proceed with the update if docID is valid
-      updateFirestoreAfterScan(docID);
+        setExtractedDocID(docID); 
+        updateFirestoreAfterScan(docID);
     } else {
-      Alert.alert("Error", "Invalid Document ID. Please try again.", [
-        { text: "OK", onPress: () => resetScanning() }
-      ]);
+        Alert.alert("Error", "Invalid Document ID. Please try again.", [{ text: "OK", onPress: resetScanning }]);
     }
-  };
+}, [scanned]);
 
   const extractDocID = (data) => {
     try {
-      const docID = data.split(",")[0].split(":")[1].trim(); // Extracting the doc ID part
-      console.log("Extracted Doc ID:", docID); // Log the extracted ID
-      return docID || null; // Return null if docID is empty
+      const docID = data.split(",")[0].split(":")[1].trim();
+      console.log("Extracted Doc ID:", docID);
+      return docID || null;
     } catch (error) {
       console.error("Error extracting Doc ID:", error);
       return null;
     }
   };
 
-  // Function to update Firestore after scanning a QR code
   const updateFirestoreAfterScan = async (docID) => {
     if (!docID) {
-      console.error("Invalid Doc ID, skipping Firestore update.");
       Alert.alert("Error", "Invalid Document ID. Please try again.", [
-        { text: "OK", onPress: () => resetScanning() }
+        { text: "OK", onPress: resetScanning }
       ]);
       return;
     }
 
     try {
+      console.log("Checking Firestore for Doc ID:", docID);
+      const recycleRequestDocRef = doc(DB, "recycleRequest", docID);
+      const docSnap = await getDoc(recycleRequestDocRef);
+
+      // Set button color based on document existence
+      const exists = docSnap.exists();
+      setIsInRecycleRequest(exists);
+
+      if (!exists) {
+        Alert.alert("Error", "Document does not exist in recycleRequest.", [
+          { text: "OK", onPress: resetScanning }
+        ]);
+        return; // Exit if the document does not exist
+      }
+
       console.log("Updating Firestore for Doc ID:", docID);
-      const timestamp = Timestamp.now(); // Current timestamp
+      const timestamp = Timestamp.now();
 
       // Update CollectingList collection
       const collectingListDocRef = doc(DB, "CollectingList", docID);
@@ -79,18 +103,25 @@ const QRCodeScannerScreen = () => {
       // Update GarbageBins collection
       const garbageBinDocRef = doc(DB, "GarbageBins", docID);
       await updateDoc(garbageBinDocRef, {
-        CollectingStatus: "Pending", // change to collected
+        CollectingStatus: "Pending",
         LastCollectedDate: timestamp,
       });
       console.log("Updated GarbageBins successfully");
 
+      // Success alert
       Alert.alert("Success", `Document with ID ${docID} has been updated.`, [
-        { text: "OK", onPress: () => resetScanning() }
+        {
+          text: "OK",
+          onPress: () => {
+            // Do not reset isInRecycleRequest here
+            resetScanning(); // Reset scanning state
+          }
+        }
       ]);
     } catch (error) {
       console.error("Error updating Firestore:", error);
       Alert.alert("Error", `Failed to update document with ID ${docID}.`, [
-        { text: "OK", onPress: () => resetScanning() }
+        { text: "OK", onPress: resetScanning }
       ]);
     }
   };
@@ -106,7 +137,8 @@ const QRCodeScannerScreen = () => {
 
   const handleSubmit = async () => {
     try {
-      navigation.navigate("RecycleForm");
+      console.log("Navigating to RecycleForm with Doc ID:", extractedDocID);
+      navigation.navigate("RecycleForm", { docID: extractedDocID }); // Pass docID to RecycleForm
     } catch (error) {
       console.error("Error Scanning code: ", error);
     }
@@ -121,7 +153,6 @@ const QRCodeScannerScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Button with PNG Icon to navigate to Scan History */}
       <TouchableOpacity style={styles.historyButton} onPress={handleHistory}>
         <Image
           source={require("../../assets/history-icon.png")}
@@ -166,7 +197,11 @@ const QRCodeScannerScreen = () => {
         <Text style={styles.scanButtonText}>Start Scan</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.requestButton} onPress={handleSubmit}>
+      <TouchableOpacity
+        style={[styles.requestButton, isInRecycleRequest ? styles.redButton : null]}
+        onPress={handleSubmit}
+        disabled={!isInRecycleRequest} // Disable button if not in recycle request
+      >
         <Text style={styles.requestButtonText}>Recycle Collection Request</Text>
       </TouchableOpacity>
     </View>
@@ -180,6 +215,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+  },
+  redButton: {
+    backgroundColor: "red", // Change to your desired red color
   },
   historyButton: {
     position: "absolute",

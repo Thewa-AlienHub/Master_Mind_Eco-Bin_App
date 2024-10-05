@@ -107,7 +107,7 @@ const ReportViewScreen = () => {
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.card}>
           <View style={styles.row}>
-            <Text style={styles.label}>Owner Name: {report.ownerName}</Text>
+            <Text style={styles.label}>Tenant Name: {report.ownerName}</Text>
           </View>
           <View style={styles.separator} />
 
