@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera"; // Import Camera from Expo
 import colors from "../../Utils/colors";
 
-const QRCodeScannerScreen = ({ drawer }) => {
+const QRCodeScannerScreen = () => {
   const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [scanning, setScanning] = useState(false); // State to toggle scanning
