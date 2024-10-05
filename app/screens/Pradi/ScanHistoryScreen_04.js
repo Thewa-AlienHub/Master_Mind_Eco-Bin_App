@@ -84,32 +84,35 @@ const ScanHistoryScreen = () => {
       const todayData = scanData.filter((item) => {
         try {
           let itemDate;
-          
-          // Try parsing with custom format
-          itemDate = parse(item.dateAndTime, "M/d/yyyy, h:mm:ss a", new Date());
-  
-          // If the date parsing with the custom format fails (NaN), try ISO format
-          if (isNaN(itemDate)) {
-            itemDate = new Date(item.dateAndTime); // Try as ISO string
+
+          // Try parsing with both potential formats
+          const formats = ["MM/dd/yyyy, h:mm:ss a", "dd/MM/yyyy, H:mm:ss"];
+
+          for (const format of formats) {
+            itemDate = parse(item.dateAndTime, format, new Date());
+
+            // If parsing is successful, break the loop
+            if (!isNaN(itemDate.getTime())) {
+              break;
+            }
           }
-  
+
           // Log parsed date to verify correct parsing
-          console.log("Parsed Date:", itemDate);
-  
-          // Check if the parsed date is today
-          return isToday(itemDate);
+          console.log("Parsed Date for Today Check:", itemDate);
+
+          // Check if the parsed date is valid and falls on today
+          return itemDate && isToday(itemDate);
         } catch (error) {
           console.error("Error parsing item date:", error);
           return false; // If there's an error, skip this item
         }
       });
-      setFilteredData(todayData);
+
+      setFilteredData(todayData); // Set filtered data to today's data
     } else {
       setFilteredData(scanData); // Show all data if "All" is selected
     }
   }, [selectedTab, scanData]);
-  
-  
 
   const handleViewReport = (item) => {
     navigation.navigate("ReportView", { report: item });
@@ -117,70 +120,70 @@ const ScanHistoryScreen = () => {
 
   const handleDownloadAll = async () => {
     try {
-      // Generate HTML content for the PDF
+      // Generate HTML content for the PDF using a template literal
       const htmlContent = `
-    <html>
-    <head>
-      <style>
-        table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #00CE5E;
-      color: white;
-    }
-    .status-pending {
-      color: red;
-    }
-    .status-complete {
-      color: green;
-    }
-  </style>
-</head>
-<body>
-  <h1>Scan History Report</h1>
-  <table>
-    <tr>
-      <th>Owner Name</th>
-      <th>House Address</th>
-      <th>Waste Type</th>
-      <th>Date</th>
-      <th>Review Status</th>
-    </tr>
-    ${filteredData
-      .map(
-        (item) => `
-        <tr>
-          <td>${item.ownerName}</td>
-          <td>${item.houseAddress}</td>
-          <td>${item.wasteType}</td>
-          <td>${item.dateAndTime}</td>
-          <td class="${
-            item.reviewStatus === "Pending review"
-              ? "status-pending"
-              : "status-complete"
-          }">
-            ${item.reviewStatus}
-          </td>
-        </tr>
-      `
-      )
-      .join("")}
-  </table>
-    </body>
-    </html>
+      <html>
+      <head>
+        <style>
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background-color: #00CE5E;
+            color: white;
+          }
+          .status-pending {
+            color: red;
+          }
+          .status-complete {
+            color: green;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Scan History Report</h1>
+        <table>
+          <tr>
+            <th>Owner Name</th>
+            <th>House Address</th>
+            <th>Waste Type</th>
+            <th>Date</th>
+            <th>Review Status</th>
+          </tr>
+          ${filteredData
+            .map(
+              (item) => `
+              <tr>
+                <td>${item.ownerName || "No Owner Name Available"}</td>
+                <td>${item.houseAddress || "No Address Available"}</td>
+                <td>${item.wasteType || "No Waste Type Available"}</td>
+                <td>${item.dateAndTime || "No Date Available"}</td>
+                <td class="${
+                  item.reviewStatus === "Pending review"
+                    ? "status-pending"
+                    : "status-complete"
+                }">
+                  ${item.reviewStatus || "No Review Status Available"}
+                </td>
+              </tr>
+              `
+            )
+            .join("")}
+        </table>
+      </body>
+      </html>
     `;
 
       // Create PDF file from the HTML content
       const { uri: pdfUri } = await Print.printToFileAsync({
         html: htmlContent,
-        fileName: `RecycleHistoryReport.pdf`,
+        fileName: "RecycleHistoryReport.pdf", // Correctly quoted the filename
         base64: false,
       });
 
@@ -288,12 +291,12 @@ const ScanHistoryScreen = () => {
             <Text style={styles.downloadAllButtonText}>Download All</Text>
           </TouchableOpacity>
         </View>
-          <FlatList
-            data={filteredData} // Use filtered data instead of scanData
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            contentContainerStyle={styles.list}
-          />
+        <FlatList
+          data={filteredData} // Use filtered data instead of scanData
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+        />
       </View>
     </View>
   );
