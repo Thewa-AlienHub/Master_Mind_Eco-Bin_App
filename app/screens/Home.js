@@ -8,9 +8,8 @@ const { width, height } = Dimensions.get('window');
 
 const Home = ({ drawer }) => {
   const advertisements = [
-    { id: 1, text: "Ad 1: Special Sale Today!" },
-    { id: 2, text: "Ad 2: Buy One Get One Free!" },
-    { id: 3, text: "Ad 3: New Arrivals in Store!" }
+    { id: 1, text: "Ad 1: Recycle More , Earn More" },
+    { id: 2, text: "Ad 2: Newly Registered Customer Offer 20%" },
   ];
 
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
@@ -42,28 +41,7 @@ const Home = ({ drawer }) => {
 
       {/* Scrollable Content in homeContainer */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.homeContainer}>
-          <Text style={styles.homeText}>Content 1</Text>
-          <Text style={styles.homeText}>Content 2</Text>
-          <Text style={styles.homeText}>Content 3</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          <Text style={styles.homeText}>Content 4</Text>
-          {/* Add as many content items as you want */}
-        </View>
+        
       </ScrollView>
     </View>
   );
@@ -85,9 +63,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     height: height*0.22,
     width: width*0.88,
-    borderRadius: 20,
-    marginTop: 20,
-    marginHorizontal: 15,
+    borderRadius: 25,
+    marginTop: height*0.02,
+    marginHorizontal: width*0.03,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -98,7 +76,7 @@ const styles = StyleSheet.create({
   homeTxt: {
     color: colors.white,
     fontSize: 40,
-    marginLeft: width*0.4,
+    marginLeft: width*0.36,
     marginTop: 25,
     fontWeight: "bold",
   },
