@@ -31,6 +31,6 @@
     "web": {
       "favicon": "./app/assets/favicon.png"
     },
-    "owner": "kks2002"
+    "owner":"kks2002"
   }
 }

@@ -97,7 +97,7 @@ function SignUp({ navigation }) {
                 return;
             }
     
-            await setDoc(doc(DB, "Users", email), {
+            await setDoc(doc(DB, "users", email), {
                 FirstName: FirstName,
                 LastName: LastName,
                 ContactNum: ContactNum,
