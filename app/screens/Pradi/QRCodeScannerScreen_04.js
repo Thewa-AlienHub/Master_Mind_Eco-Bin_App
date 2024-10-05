@@ -1,33 +1,103 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { BarCodeScanner } from "expo-barcode-scanner"; // Import BarCodeScanner from Expo
+import { BarCodeScanner } from "expo-barcode-scanner";
 import colors from "../../Utils/colors";
+import { doc, updateDoc, Timestamp } from "firebase/firestore"; // Firestore imports
+import { DB } from "../../config/DB_config"; // Firestore configuration
 
 const QRCodeScannerScreen = () => {
   const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
-  const [scanning, setScanning] = useState(false); // State to toggle scanning
+  const [scanning, setScanning] = useState(false);
   const [scanned, setScanned] = useState(false);
-  const [scannedData, setScannedData] = useState(null); // State to hold scanned data
   const qrLock = useRef(false);
 
   // Ask for camera permission when the component is mounted
   useEffect(() => {
     (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync(); // Correct method for requesting camera permissions
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === "granted");
     })();
   }, []);
 
   const handleScan = () => {
-    setScanning(true); // Start scanning
-    setScanned(false); // Reset scanned state
+    setScanning(true);
+    setScanned(false);
   };
 
   const handleBarCodeScanned = ({ type, data }) => {
+    if (scanned) return; // Prevent multiple scans
     setScanned(true);
-    setScannedData({ type, data }); // Store scanned data
+
+    // Extract the actual document ID from the scanned data
+    const docID = extractDocID(data);
+
+    if (docID) {
+      // Only proceed with the update if docID is valid
+      updateFirestoreAfterScan(docID);
+    } else {
+      Alert.alert("Error", "Invalid Document ID. Please try again.", [
+        { text: "OK", onPress: () => resetScanning() }
+      ]);
+    }
+  };
+
+  const extractDocID = (data) => {
+    try {
+      const docID = data.split(",")[0].split(":")[1].trim(); // Extracting the doc ID part
+      console.log("Extracted Doc ID:", docID); // Log the extracted ID
+      return docID || null; // Return null if docID is empty
+    } catch (error) {
+      console.error("Error extracting Doc ID:", error);
+      return null;
+    }
+  };
+
+  // Function to update Firestore after scanning a QR code
+  const updateFirestoreAfterScan = async (docID) => {
+    if (!docID) {
+      console.error("Invalid Doc ID, skipping Firestore update.");
+      Alert.alert("Error", "Invalid Document ID. Please try again.", [
+        { text: "OK", onPress: () => resetScanning() }
+      ]);
+      return;
+    }
+
+    try {
+      console.log("Updating Firestore for Doc ID:", docID);
+      const timestamp = Timestamp.now(); // Current timestamp
+
+      // Update CollectingList collection
+      const collectingListDocRef = doc(DB, "CollectingList", docID);
+      await updateDoc(collectingListDocRef, {
+        CollectingStatus: "Completed",
+        LastCollectedDate: timestamp,
+      });
+      console.log("Updated CollectingList successfully");
+
+      // Update GarbageBins collection
+      const garbageBinDocRef = doc(DB, "GarbageBins", docID);
+      await updateDoc(garbageBinDocRef, {
+        CollectingStatus: "Pending", // change to collected
+        LastCollectedDate: timestamp,
+      });
+      console.log("Updated GarbageBins successfully");
+
+      Alert.alert("Success", `Document with ID ${docID} has been updated.`, [
+        { text: "OK", onPress: () => resetScanning() }
+      ]);
+    } catch (error) {
+      console.error("Error updating Firestore:", error);
+      Alert.alert("Error", `Failed to update document with ID ${docID}.`, [
+        { text: "OK", onPress: () => resetScanning() }
+      ]);
+    }
+  };
+
+  const resetScanning = () => {
+    setScanning(false);
+    setScanned(false);
   };
 
   const handleHistory = () => {
@@ -61,8 +131,7 @@ const QRCodeScannerScreen = () => {
 
       <Text style={styles.title}>Scan QR code</Text>
       <Text style={styles.subtitle}>
-        Place qr code inside the frame to scan, please avoid shaking to get
-        results quickly
+        Place QR code inside the frame to scan, please avoid shaking to get results quickly.
       </Text>
 
       <View style={styles.qrScanner}>
@@ -72,7 +141,6 @@ const QRCodeScannerScreen = () => {
             style={styles.cameraView}
             ratio="16:9"
           >
-            {/* The overlay to show the QR scanning area */}
             <View style={styles.qrScannerOverlay}>
               <Image
                 source={require("../../assets/qr-code.png")}
@@ -90,7 +158,6 @@ const QRCodeScannerScreen = () => {
         )}
       </View>
 
-      {/* Button to start the scanning process */}
       <TouchableOpacity
         style={styles.scanButton}
         onPress={handleScan}
@@ -98,18 +165,6 @@ const QRCodeScannerScreen = () => {
       >
         <Text style={styles.scanButtonText}>Start Scan</Text>
       </TouchableOpacity>
-
-      {scanned && (
-        <View style={styles.scannedDataContainer}>
-          <Text style={styles.scannedText}>
-            Bar code with type {scannedData.type} and data {scannedData.data}{" "}
-            has been scanned!
-          </Text>
-          <TouchableOpacity onPress={() => setScanned(false)}>
-            <Text style={styles.scanButtonText}>Tap to Scan Again</Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       <TouchableOpacity style={styles.requestButton} onPress={handleSubmit}>
         <Text style={styles.requestButtonText}>Recycle Collection Request</Text>
@@ -204,20 +259,6 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: "bold",
-  },
-  scannedDataContainer: {
-    position: "absolute",
-    top: "50%",
-    left: "10%",
-    right: "10%",
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  scannedText: {
-    fontSize: 16,
-    marginBottom: 10,
   },
 });
 

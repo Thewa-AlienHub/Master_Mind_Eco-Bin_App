@@ -82,18 +82,34 @@ const ScanHistoryScreen = () => {
     // Filter data based on the selected tab
     if (selectedTab === "Today") {
       const todayData = scanData.filter((item) => {
-        const itemDate = parse(
-          item.dateAndTime,
-          "M/d/yyyy, h:mm:ss a",
-          new Date()
-        );
-        return isToday(itemDate);
+        try {
+          let itemDate;
+          
+          // Try parsing with custom format
+          itemDate = parse(item.dateAndTime, "M/d/yyyy, h:mm:ss a", new Date());
+  
+          // If the date parsing with the custom format fails (NaN), try ISO format
+          if (isNaN(itemDate)) {
+            itemDate = new Date(item.dateAndTime); // Try as ISO string
+          }
+  
+          // Log parsed date to verify correct parsing
+          console.log("Parsed Date:", itemDate);
+  
+          // Check if the parsed date is today
+          return isToday(itemDate);
+        } catch (error) {
+          console.error("Error parsing item date:", error);
+          return false; // If there's an error, skip this item
+        }
       });
       setFilteredData(todayData);
     } else {
       setFilteredData(scanData); // Show all data if "All" is selected
     }
   }, [selectedTab, scanData]);
+  
+  
 
   const handleViewReport = (item) => {
     navigation.navigate("ReportView", { report: item });
@@ -272,14 +288,12 @@ const ScanHistoryScreen = () => {
             <Text style={styles.downloadAllButtonText}>Download All</Text>
           </TouchableOpacity>
         </View>
-        <ScrollView contentContainerStyle={styles.formContainer}>
           <FlatList
             data={filteredData} // Use filtered data instead of scanData
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.list}
           />
-        </ScrollView>
       </View>
     </View>
   );
