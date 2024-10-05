@@ -88,7 +88,7 @@ function SignUp({ navigation }) {
         setLoading(true);
     
         try {
-            const docRef = doc(DB, "Users", email);
+            const docRef = doc(DB, "users", email);
             const docSnap = await getDoc(docRef);
     
             if (docSnap.exists()) {

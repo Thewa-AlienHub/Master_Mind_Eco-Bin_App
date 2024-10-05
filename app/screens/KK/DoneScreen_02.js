@@ -8,14 +8,14 @@ const DoneScreen = ({ navigation,route }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#00CE5E" />
             <Lottie
-                source={require('../assets/done.json')} // Update the path accordingly
+                source={require('../../assets/done.json')} // Update the path accordingly
                 autoPlay
                 loop={false}
                 onAnimationFinish={() => {
                     // Optional: Navigate to another screen after the animation finishes
                     navigation.navigate('NextScreen'); // Update 'NextScreen' as needed
                 }}
-                style={styles.animation}//testing comment
+                style={styles.animation}//testing comment 22
             />
             <Text style={styles.doneText}>Done!</Text>
             <Text style={styles.messageText}>Your task has been successfully completed.</Text>

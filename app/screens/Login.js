@@ -65,9 +65,7 @@ function Login({ navigation }) {
                     const data = docSnap.data();
                     if (data.password === password) {
                         console.log('Login Successful');
-                        if (data.role === 'admin') {
-                            console.log('Unknown role admin');
-                        } else if (data.role === 'user') {
+                        if (data.role === 'user' || data.role === 'admin') {
                             const loggedInData= {data:data};
                             setUser(loggedInData);
                             console.log(loggedInData)
