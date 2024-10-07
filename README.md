@@ -1,2 +1,2 @@
-# Master_Mind_Management_App
+# Master_Mind_Eco _ Bin App
 Community System Mangement App
